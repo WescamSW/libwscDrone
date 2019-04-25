@@ -85,9 +85,14 @@ public:
     /// Blocking call to busy wait until a state change occurs
     void waitForStateChange();
 
+    /// Notify that the state has changed
+    void notifyStateChange();
+
     /// Get the last received state event of the drone
     /// @returns the last state received
     eARCONTROLLER_DEVICE_STATE getLastState() { return m_lastState; }
+
+    void setLastState(eARCONTROLLER_DEVICE_STATE lastState) { m_lastState = lastState; }
 
     /// Start the drones device control interface
     void start();

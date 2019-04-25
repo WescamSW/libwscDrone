@@ -100,7 +100,7 @@ API_HEADER_LIST = \
                   VideoDriver \
                   Utils \
                   Semaphore \
-                  VideoCallback
+                  VideoFrame
 
 CPP_SRC_LIST = Bebop2 \
                DroneDiscovery \

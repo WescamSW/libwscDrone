@@ -19,7 +19,7 @@
 #include "wscDrone/VideoDecoder.h"
 #include "wscDrone/Semaphore.h"
 #include "wscDrone/Utils.h"
-#include "wscDrone/VideoCallback.h"
+#include "wscDrone/VideoFrame.h"
 
 /// This namespace encapsulates the Wescam Drone Layer
 namespace wscDrone {

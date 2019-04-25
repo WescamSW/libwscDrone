@@ -11,14 +11,16 @@
 #include "Semaphore.h"
 #include "Bebop2.h"
 #include "Callbacks.h"
+#include "VideoFrame.h"
 
 using namespace std;
 using namespace wscDrone;
 
 // Global variables
-extern std::vector<std::shared_ptr<Semaphore>> g_stateSemaphores;
-extern std::vector<std::shared_ptr<Bebop2>> g_drones;
-extern std::vector<std::unique_ptr<std::mutex>> g_bufferGuards;
+//extern std::vector<std::shared_ptr<Semaphore>>  g_stateSemaphores;
+extern std::vector<std::shared_ptr<Bebop2>>     g_drones;
+//extern std::vector<std::unique_ptr<std::mutex>> g_bufferGuards;
+//extern std::vector<shared_ptr<VideoFrame>>      g_frames;
 
 namespace wscDrone {
 
@@ -29,14 +31,17 @@ void onStateChangedGeneric(eARCONTROLLER_DEVICE_STATE newState, eARCONTROLLER_ER
 
     printf("stageChanged newState: %d ....\n", newState);
 
+    g_drones[droneId]->getDroneController()->setLastState(newState);
+    g_drones[droneId]->getDroneController()->notifyStateChange();
     switch (newState)
     {
     case ARCONTROLLER_DEVICE_STATE_STOPPED:
-        g_stateSemaphores[droneId]->notify();
+        //g_stateSemaphores[droneId]->notify();
+
         break;
 
     case ARCONTROLLER_DEVICE_STATE_RUNNING:
-        g_stateSemaphores[droneId]->notify();
+        //g_stateSemaphores[droneId]->notify();
         break;
 
     default:
@@ -202,6 +207,33 @@ eARCONTROLLER_ERROR decoderConfigCallback1(ARCONTROLLER_Stream_Codec_t codec, vo
 eARCONTROLLER_ERROR decoderConfigCallback2(ARCONTROLLER_Stream_Codec_t codec, void *customData)
 {
     return decoderConfigCallbackGeneric(codec, customData, 2);
+}
+
+// onFrameRecieved
+eARCONTROLLER_ERROR onFrameReceivedGeneric(ARCONTROLLER_Frame_t *frame, void *customData, int droneId)
+{
+    g_drones[droneId]->getVideoDriver()->Decode(frame);
+    lock_guard<mutex> lock(*(g_drones[droneId]->getVideoDriver()->getBufferMutex()));
+
+    shared_ptr<VideoFrame> videoFrame = g_drones[droneId]->getVideoDriver()->getFrame();
+    memcpy(videoFrame->getRawPointer(),
+    	g_drones[droneId]->getVideoDriver()->GetFrameRGBRawCstPtr(),
+		   videoFrame->getFrameSizeBytes());
+
+    return ARCONTROLLER_OK;
+}
+
+eARCONTROLLER_ERROR onFrameReceived0(ARCONTROLLER_Frame_t *frame, void *customData)
+{
+    return onFrameReceivedGeneric(frame, customData, 0);
+}
+eARCONTROLLER_ERROR onFrameReceived1(ARCONTROLLER_Frame_t *frame, void *customData)
+{
+    return onFrameReceivedGeneric(frame, customData, 1);
+}
+eARCONTROLLER_ERROR onFrameReceived2(ARCONTROLLER_Frame_t *frame, void *customData)
+{
+    return onFrameReceivedGeneric(frame, customData, 2);
 }
 
 } // wscDrone

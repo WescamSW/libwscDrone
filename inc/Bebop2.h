@@ -46,11 +46,11 @@ public:
     Bebop2() = delete;
     /// Construct a Bebop2 control instance using the specified IP address.
     /// @param ipAddress the IP address of the drone you wish to control.
-    Bebop2(std::string ipAddress);
+    Bebop2(std::string ipAddress, std::shared_ptr<VideoFrame> frame);
 
     /// Construct a Bebop2 control instance using the Callsign
     /// @param callsign the enumerated label for the desired drone to control
-    Bebop2(Callsign callsign);
+    Bebop2(Callsign callsign, std::shared_ptr<VideoFrame> frame);
 
     /// Default destructor
     ~Bebop2() {}
@@ -75,11 +75,6 @@ public:
     /// @returns a shared pointer to the video driver class
     std::shared_ptr<VideoDriver>     getVideoDriver()     { return m_video; }
 
-    /// Register the user callback for processing received H264 video frames. Both decoder and video
-    /// callbacks must be registered at the same time.
-    /// @param videoCallback the function name of the video callback
-    void registerVideoCallback(const VideoFrameReceivedCallback &videoCallback);
-
     /// Get the current battery level
     /// @returns battery level 0 to 100.
     unsigned getBatteryLevel() { return m_batteryLevel; }
@@ -89,9 +84,9 @@ public:
     void setBatteryLevel(unsigned level) { m_batteryLevel = level; }
 
 private:
-    Callsign m_callsign;     ///< callsign of the drone
-    std::string m_ipAddress; ///< ipAddress of the drone under control
-    unsigned m_batteryLevel = 0; ///< battery level, 0 to 100
+    Callsign    m_callsign;         ///< callsign of the drone
+    std::string m_ipAddress;        ///< ipAddress of the drone under control
+    unsigned    m_batteryLevel = 0; ///< battery level, 0 to 100
     std::shared_ptr<DroneDiscovery>  m_droneDiscovery  = nullptr; ///< shared pointer to DroneDiscovery class
     std::shared_ptr<DroneController> m_droneController = nullptr; ///< shared pointer to DroneController class
     std::shared_ptr<CameraControl>   m_camera          = nullptr; ///< shared pointer to CameraControl class

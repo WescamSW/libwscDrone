@@ -49,6 +49,11 @@ void DroneController::waitForStateChange()
     m_stateSemaphore->wait();
 }
 
+void DroneController::notifyStateChange()
+{
+	m_stateSemaphore->notify();
+}
+
 void DroneController::start()
 {
     printf("DroneController::start(): starting up drone control\n");
@@ -113,7 +118,7 @@ void DroneController::registerCommandReceivedCallback(const CommandReceivedCallb
 // void stateChanged(eARCONTROLLER_DEVICE_STATE newState, eARCONTROLLER_ERROR error, void *customData)
 void DroneController::registerStateChangeCallback(const StateChangeCallback &callback)
 {
-    printf("DroneController::stop(): stopping drone control\n");
+    printf("DroneController::registerStateChangeCallback(): registering...\n");
     if (!m_deviceController) {
         throw runtime_error("DroneController::registerStateChangeCallback(): invalid device controller");
     }

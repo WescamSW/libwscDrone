@@ -25,6 +25,10 @@ eARCONTROLLER_ERROR decoderConfigCallback0(ARCONTROLLER_Stream_Codec_t codec, vo
 eARCONTROLLER_ERROR decoderConfigCallback1(ARCONTROLLER_Stream_Codec_t codec, void *customData);
 eARCONTROLLER_ERROR decoderConfigCallback2(ARCONTROLLER_Stream_Codec_t codec, void *customData);
 
+eARCONTROLLER_ERROR onFrameReceived0(ARCONTROLLER_Frame_t *frame, void *customData);
+eARCONTROLLER_ERROR onFrameReceived1(ARCONTROLLER_Frame_t *frame, void *customData);
+eARCONTROLLER_ERROR onFrameReceived2(ARCONTROLLER_Frame_t *frame, void *customData);
+
 }
 
 #endif /* INC_CALLBACKS_H_ */

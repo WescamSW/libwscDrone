@@ -14,7 +14,7 @@ namespace wscDrone {
 
 const std::string BEBOP_IP_ADDRESS = "192.168.42.1";
 
-Bebop2::Bebop2(string ipAddress)
+Bebop2::Bebop2(string ipAddress, std::shared_ptr<VideoFrame> frame)
 {
     m_callsign = Callsign::LONE_WOLF;
     m_ipAddress = ipAddress;
@@ -22,13 +22,13 @@ Bebop2::Bebop2(string ipAddress)
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
     m_camera          = std::make_shared<CameraControl>(m_droneController);
     m_pilot           = std::make_shared<Pilot>(m_droneController);
-    m_video           = std::make_shared<VideoDriver>(m_droneController);
+    m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
 
     m_droneController->registerStateChangeCallback(onStateChanged0);
     m_droneController->registerCommandReceivedCallback(onCommandReceived0);
 }
 
-Bebop2::Bebop2(Callsign callsign)
+Bebop2::Bebop2(Callsign callsign, std::shared_ptr<VideoFrame> frame)
 {
     m_callsign = callsign;
     std::string ipAddress;
@@ -52,18 +52,20 @@ Bebop2::Bebop2(Callsign callsign)
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
     m_camera          = std::make_shared<CameraControl>(m_droneController);
     m_pilot           = std::make_shared<Pilot>(m_droneController);
-    m_video           = std::make_shared<VideoDriver>(m_droneController);
+    m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
 
     switch (callsign) {
 
     case Callsign::BRAVO :
         m_droneController->registerStateChangeCallback(onStateChanged1);
         m_droneController->registerCommandReceivedCallback(onCommandReceived1);
+        m_droneController->registerVideoCallback(static_cast<unsigned>(Callsign::BRAVO), onFrameReceived1);
         break;
 
     case Callsign::CHARLIE :
         m_droneController->registerStateChangeCallback(onStateChanged2);
         m_droneController->registerCommandReceivedCallback(onCommandReceived2);
+        m_droneController->registerVideoCallback(static_cast<unsigned>(Callsign::CHARLIE), onFrameReceived2);
         break;
 
     case Callsign::ALPHA :
@@ -71,30 +73,9 @@ Bebop2::Bebop2(Callsign callsign)
     default :
         m_droneController->registerStateChangeCallback(onStateChanged0);
         m_droneController->registerCommandReceivedCallback(onCommandReceived0);
+        m_droneController->registerVideoCallback(static_cast<unsigned>(Callsign::ALPHA), onFrameReceived0);
         break;
     }
-}
-
-void Bebop2::registerVideoCallback(const VideoFrameReceivedCallback &videoCallback)
-{
-
-    switch (m_callsign) {
-
-    case Callsign::BRAVO :
-        m_droneController->registerVideoCallback(static_cast<unsigned>(Callsign::BRAVO), videoCallback);
-        break;
-
-    case Callsign::CHARLIE :
-        m_droneController->registerVideoCallback(static_cast<unsigned>(Callsign::CHARLIE), videoCallback);
-        break;
-
-    case Callsign::ALPHA :
-    case Callsign::LONE_WOLF :
-    default :
-        m_droneController->registerVideoCallback(static_cast<unsigned>(Callsign::ALPHA), videoCallback);
-        break;
-    }
-
 }
 
 }
