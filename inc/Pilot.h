@@ -44,7 +44,9 @@ enum class FlyingState : int {
     TAKING_OFF = 1, ///< drone is in the process of taking off
     HOVERING = 2,   ///< drone is currently hovering, holding position
     FLYING = 3,     ///< drone is currently flying (moving)
-    LANDING = 4     ///< drone is in the process of landing
+    LANDING = 4,     ///< drone is in the process of landing
+    EMERGENCY = 5,     ///< drone has something gone bad right now
+    MOTOR_SPINUP = 7,     ///< drone has motors starting and spinning up
 };
 
 /// This class provides an API to control the movement of the drone.
@@ -71,7 +73,7 @@ public:
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
     /// Positive numbers are clockwise rotation.
     /// @param wait when true, this function will block until move is completed
-    void moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+    void moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true, bool *timeOutOccured = NULL);
 
     /// Set the drones orientation without moving
     /// @param heading the desired orientation in degrees, 0 degrees is the current heading.
@@ -81,7 +83,7 @@ public:
     /// Set the flying state of the drone. NOTE: this is typically called within a callback when the drone
     /// state changes.
     /// @param state the flying state of the drone
-    void setFlyingState(int state);
+    void setFlyingState(int state, bool debug = false);
 
     /// Call this function to notify the Pilot class that a Move has been completed. Typically called from
     /// a callback when the move-complete event is received
