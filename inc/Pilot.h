@@ -38,6 +38,8 @@ constexpr float LEFT_180_DEGREES  = -180.0f;
 constexpr float RIGHT_270_DEGREES =  270.0f;
 constexpr float LEFT_270_DEGREES  = -270.0f;
 
+constexpr float MOVEMENT_STEP     = 0.5f;
+
 /// List of drone flying states
 enum class FlyingState : int {
     LANDED = 0,     ///< drone is landed
@@ -45,6 +47,16 @@ enum class FlyingState : int {
     HOVERING = 2,   ///< drone is currently hovering, holding position
     FLYING = 3,     ///< drone is currently flying (moving)
     LANDING = 4     ///< drone is in the process of landing
+};
+
+/// List of drone movement directions
+enum class MoveDirection : int {
+    UP = 0,      ///< move drone upward
+    DOWN = 1,    ///< move drone downwards
+    FORWARD = 2, ///< move drone forward in relation to current heading
+    BACK = 3,    ///< move drone backward in relation to current heading
+    RIGHT = 4,   ///< move drone right in relation to current heading
+    LEFT = 5,    ///< move drone left in relation to current heading
 };
 
 /// This class provides an API to control the movement of the drone.
@@ -72,6 +84,10 @@ public:
     /// Positive numbers are clockwise rotation.
     /// @param wait when true, this function will block until move is completed
     void moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+    
+    /// Instruct the drone to move in the specified direction
+    /// @param dir direction to move the drone, will move MOVEMENT_STEP distance
+    void moveDirection(MoveDirection dir);
 
     /// Set the drones orientation without moving
     /// @param heading the desired orientation in degrees, 0 degrees is the current heading.
