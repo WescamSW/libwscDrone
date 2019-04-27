@@ -45,6 +45,13 @@ public:
     // Default destructor
     ~CameraControl() {};
 
+    /// Wait until camera change complte
+    /// @returns true if success, otherwise false on timeout
+    //bool waitForCameraChange();
+
+    /// trigger a notify of the camera change
+    //void notifyCameraChange();
+
     /// Change the orientation of the camera
     /// @param tilt angle specified in degrees. Positive (negative) numbers tilt up (down)
     /// @param pan angle specified in degrees. Positive (negative) numbers pan to the right (left)
@@ -58,6 +65,7 @@ public:
 
 private:
     ARCONTROLLER_Device_t *m_deviceController = nullptr; ///< smart pointer to a DeviceController
+    //std::shared_ptr<Semaphore> m_cameraSemaphore = nullptr;
 };
 
 }

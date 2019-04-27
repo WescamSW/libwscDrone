@@ -14,6 +14,8 @@
 using namespace std;
 using namespace std::placeholders; // for _1, _2, etc.
 
+constexpr int STATE_TIMEOUT_MS = 10000;
+
 namespace wscDrone {
 
 DroneController::DroneController(std::shared_ptr<DroneDiscovery> droneDiscovery)
@@ -46,9 +48,9 @@ DroneController::~DroneController()
     }
 }
 
-void DroneController::waitForStateChange()
+bool DroneController::waitForStateChange()
 {
-    m_stateSemaphore->wait();
+    return !m_stateSemaphore->waitTimed(STATE_TIMEOUT_MS);
 }
 
 void DroneController::notifyStateChange()

@@ -85,6 +85,13 @@ void Bebop2::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey,
             }
         }
 
+        // Camera orientation changed
+//        if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_CAMERASTATE_ORIENTATIONV2)
+//        {
+//            cout << "Camera orientation done" << endl;
+//            drone->getCameraControl()->notifyCameraChange();
+//        }
+
 
         // Print camera settings
         else  if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_COMMON_CAMERASETTINGSSTATE_CAMERASETTINGSCHANGED) && (elementDictionary != NULL))

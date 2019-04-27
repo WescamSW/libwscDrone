@@ -72,7 +72,8 @@ public:
     std::shared_ptr<Semaphore> getStateSemaphore() { return m_stateSemaphore; }
 
     /// Blocking call to busy wait until a state change occurs
-    void waitForStateChange();
+    /// @returns true on succes, false on timeout
+    bool waitForStateChange();
 
     /// Notify that the state has changed
     void notifyStateChange();

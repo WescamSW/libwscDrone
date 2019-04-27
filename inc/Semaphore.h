@@ -54,13 +54,13 @@ public:
 
     /// Semaphore wait
     // Returns TRUE if we've timed out
-    bool waitTimed(unsigned int time)
+    bool waitTimed(unsigned int timeMilliseconds)
     {
 	bool ret = false;
         std::unique_lock<std::mutex> lck(mtx);
         while(count == 0)
         {
-            if (cv.wait_for(lck, time*1ms) == std::cv_status::timeout) {
+            if (cv.wait_for(lck, timeMilliseconds*1ms) == std::cv_status::timeout) {
 	        ret = true;
             }
         }
