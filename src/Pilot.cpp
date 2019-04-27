@@ -98,6 +98,33 @@ bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool
     return !timedOut;
 }
 
+void Pilot::moveDirection(MoveDirection dir)
+{
+    switch(dir) {
+        case MoveDirection::UP:
+            // NOTE: -negative numbers mean increase altitude!
+            moveRelativeMetres(0.0f, 0.0f, -MOVEMENT_STEP);
+            break;
+        case MoveDirection::DOWN:
+            moveRelativeMetres(0.0f, 0.0f, MOVEMENT_STEP);
+            break;
+        case MoveDirection::FORWARD:
+            moveRelativeMetres(MOVEMENT_STEP, 0.0f, 0.0f);
+            break;
+        case MoveDirection::BACK:
+            moveRelativeMetres(-MOVEMENT_STEP, 0.0f, 0.0f);
+            break;
+        case MoveDirection::RIGHT:
+            moveRelativeMetres(0.0f, MOVEMENT_STEP, 0.0f);
+            break;
+        case MoveDirection::LEFT:
+            moveRelativeMetres(0.0f, -MOVEMENT_STEP, 0.0f);
+            break;
+        default:
+            break;
+    }
+}
+
 void Pilot::setHeading(float heading)
 {
     moveRelativeMetres(0.0f, 0.0f, 0.0f, heading);
