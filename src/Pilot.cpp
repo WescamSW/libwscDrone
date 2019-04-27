@@ -102,7 +102,7 @@ void Pilot::moveDirection(MoveDirection dir)
 {
     switch(dir) {
         case MoveDirection::UP:
-        	// NOTE: -negative numbers mean increase altitude!
+            // NOTE: -negative numbers mean increase altitude!
             moveRelativeMetres(0.0f, 0.0f, -MOVEMENT_STEP);
             break;
         case MoveDirection::DOWN:
