@@ -84,8 +84,8 @@ public:
     /// @param dz displacement in meters down (positive) or up (negative)
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
     /// Positive numbers are clockwise rotation.
-	/// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
-	bool moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+    /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
+    bool moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
     
     /// Instruct the drone to move in the specified direction
     /// @param direction direction to move the drone, will move MOVEMENT_STEP distance
