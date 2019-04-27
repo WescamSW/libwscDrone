@@ -39,6 +39,12 @@ namespace wscDrone {
 constexpr unsigned BEBOP2_STREAM_WIDTH  = 856;
 constexpr unsigned BEBOP2_STREAM_HEIGHT = 480;
 
+/// alias for ARSDK3 ARCONTROLLER_Stream_DecoderConfigCallback_t
+using VideoDecoderConfigCallback = ARCONTROLLER_Stream_DecoderConfigCallback_t;
+
+/// alias for ARSDK3 ARCONTROLLER_Stream_DidReceiveFrameCallback_t
+using VideoFrameReceivedCallback = ARCONTROLLER_Stream_DidReceiveFrameCallback_t;
+
 /// This driver extends the VideoDecoder class created from ROS (Robot Operating System).
 class VideoDriver : public bebop_driver::VideoDecoder {
 public:
@@ -48,10 +54,21 @@ public:
     VideoDriver(std::shared_ptr<wscDrone::DroneController> droneController, std::shared_ptr<VideoFrame> frame);
     ~VideoDriver(); ///< default destructor
 
+    /// Register the callbacks for the video decoder and new frame
+    /// @param decoderCallback the callback function to execute when the drones H.264 encoder changes
+    /// @param videoCallback the callback function to exectue when a new frame is received
+    void registerVideoCallback(const VideoDecoderConfigCallback &decoderCallback, const VideoFrameReceivedCallback &videoCallback, void *customData);
+
+    /// Get a smart pointer to the mutex guarding the video buffer
+    /// @returns smart pointer to a mutex
     std::shared_ptr<std::mutex> getBufferMutex() { return m_bufferGuard; }
 
+    /// Set a smart pointer to the VideoFrame object used by the video driver
+    /// @param frame a smart pointer to an instance of VideoFrame
     void setFrame(std::shared_ptr<VideoFrame> frame);
 
+    /// Get a smart pointer to the currently used VideoFrame
+    /// @returns a smart pointer to a VideoFrame instance
     std::shared_ptr<VideoFrame> getFrame() { return m_frame; }
 
 
@@ -64,6 +81,16 @@ private:
     ARCONTROLLER_Device_t *m_deviceController = nullptr; ///< raw pointer to the ARSDK device controller
     std::shared_ptr<std::mutex> m_bufferGuard = nullptr; ///< shared pointer to a mutex protecting the video frame object
     std::shared_ptr<VideoFrame> m_frame       = nullptr; ///< shared pointer to a VideoFrame object
+
+    /// Default callback for handling decoder changes
+    /// @param codec ARSDK3 codec
+    /// @param customData a pointer to an instance of VideoDriver
+    static eARCONTROLLER_ERROR m_decoderConfigCallDefault(ARCONTROLLER_Stream_Codec_t codec, void *customData);
+
+    /// Default callback for handling new video frames received
+    /// @param frame pointer to a ARSDK3 frame
+    /// @param customData a pointer to an instance of VideoDriver
+    static eARCONTROLLER_ERROR m_onFrameReceivedDefault(ARCONTROLLER_Frame_t *frame, void *customData);
 };
 
 }

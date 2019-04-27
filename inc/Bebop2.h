@@ -93,6 +93,9 @@ private:
     std::shared_ptr<Pilot>           m_pilot           = nullptr; ///< shared pointer to Pilot class
     std::shared_ptr<VideoDriver>     m_video           = nullptr; ///< shared pointer to VideoDriver class
 
+    /// Provide a default callback for incoming commands
+    static void m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey, ARCONTROLLER_DICTIONARY_ELEMENT_t *elementDictionary, void *customData);
+
 };
 
 } // wscDrone

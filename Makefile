@@ -109,8 +109,7 @@ CPP_SRC_LIST = Bebop2 \
                Pilot \
                VideoDecoder \
                VideoDriver \
-               Utils \
-               Callbacks
+               Utils
 
 
 #Prepend the path
