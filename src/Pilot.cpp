@@ -83,18 +83,19 @@ void Pilot::land()
 // NOTE:sendPilotingMoveBy expects radians
 bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
 {
-    bool ret = true;
+    bool timedOut = true;
 
     m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degressToRadians(heading)); // not implemented in the SDK yet
     if (wait) {
-        ret = moveSem.waitTimed(10000);
+        timedOut = moveSem.waitTimed(10000);
     }
     // wait until out of flying state, should go to hovering
     while (m_flyingState != FlyingState::HOVERING) {
     	waitMilliseconds(5);
     }
 
-    return ret;
+    // Return true on success, false on timeout.
+    return !timedOut;
 }
 
 void Pilot::setHeading(float heading)
