@@ -81,7 +81,7 @@ void Pilot::land()
 }
 
 // NOTE:sendPilotingMoveBy expects radians
-void Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait, bool *timeOutOccured)
+bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
 {
     bool ret = true;
 
@@ -91,13 +91,10 @@ void Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool
     }
     // wait until out of flying state, should go to hovering
     while (m_flyingState != FlyingState::HOVERING) {
-    	usleep(5000);
+    	waitMilliseconds(5);
     }
 
-    if (timeOutOccured) {
-	*timeOutOccured = ret;
-    }
-
+    return ret;
 }
 
 void Pilot::setHeading(float heading)

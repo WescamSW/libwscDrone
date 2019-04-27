@@ -68,12 +68,12 @@ public:
 
     /// Instruct the drone to move to a position relative to it's current position.
     /// @param dx displacement in meters to the right (positive) or left (negative)
-    /// @param dy displacement in meters forward (positve) or backwards (negative)
+    /// @param dy displacement in meters forward (positive) or backwards (negative)
     /// @param dz displacement in meters down (positive) or up (negative)
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
     /// Positive numbers are clockwise rotation.
-    /// @param wait when true, this function will block until move is completed
-    void moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true, bool *timeOutOccured = NULL);
+    /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
+    bool moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
 
     /// Set the drones orientation without moving
     /// @param heading the desired orientation in degrees, 0 degrees is the current heading.
