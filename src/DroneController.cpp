@@ -7,11 +7,14 @@
 #include <stdexcept>
 #include <iostream>
 #include <thread>
+#include <functional>
 
-#include "Callbacks.h"
 #include "DroneController.h"
 
 using namespace std;
+using namespace std::placeholders; // for _1, _2, etc.
+
+constexpr int STATE_TIMEOUT_MS = 10000;
 
 namespace wscDrone {
 
@@ -31,7 +34,8 @@ DroneController::DroneController(std::shared_ptr<DroneDiscovery> droneDiscovery)
 
     // Set modes to INDOOR (=0)
     m_deviceController->common->sendWifiSettingsOutdoorSetting(m_deviceController->common, 0);
-    //m_deviceController->wifi->sendSetEnvironment(m_deviceController->wifi, ARCOMMANDS_WIFI_ENVIRONMENT_INDOOR); // TODO: causes segfault
+
+    registerStateChangeCallback(m_onStateChangedDefault, this);
 
     cout << "DroneController(): Successfully created" << endl;
 }
@@ -44,9 +48,14 @@ DroneController::~DroneController()
     }
 }
 
-void DroneController::waitForStateChange()
+bool DroneController::waitForStateChange()
 {
-    m_stateSemaphore->wait();
+    return !m_stateSemaphore->waitTimed(STATE_TIMEOUT_MS);
+}
+
+void DroneController::notifyStateChange()
+{
+	m_stateSemaphore->notify();
 }
 
 void DroneController::start()
@@ -97,12 +106,12 @@ void DroneController::stop()
 
 // pass the callback to registerCommandReceivedCallback(), the callback must be of the form
 // void commandReceived(eARCONTROLLER_DEVICE_STATE newState, eARCONTROLLER_ERROR error, void *customData)
-void DroneController::registerCommandReceivedCallback(const CommandReceivedCallback &callback)
+void DroneController::registerCommandReceivedCallback(const CommandReceivedCallback &callback, void *customData)
 {
     if (!m_deviceController) {
         throw runtime_error("DroneController::registerCommandReceivedCallback(): invalid device controller");
     }
-    eARCONTROLLER_ERROR error = ARCONTROLLER_Device_AddCommandReceivedCallback (m_deviceController, callback, m_deviceController);
+    eARCONTROLLER_ERROR error = ARCONTROLLER_Device_AddCommandReceivedCallback (m_deviceController, callback, customData);
 
     if (error != ARCONTROLLER_OK) {
         throw runtime_error("DroneController::registerCommandReceivedCallback(): failed to register callback");
@@ -111,44 +120,41 @@ void DroneController::registerCommandReceivedCallback(const CommandReceivedCallb
 
 // pass the callback to registerStateChangeCallback(), the callback must be of the form
 // void stateChanged(eARCONTROLLER_DEVICE_STATE newState, eARCONTROLLER_ERROR error, void *customData)
-void DroneController::registerStateChangeCallback(const StateChangeCallback &callback)
+void DroneController::registerStateChangeCallback(const StateChangeCallback &callback, void *customData)
 {
-    printf("DroneController::stop(): stopping drone control\n");
+    printf("DroneController::registerStateChangeCallback(): registering...\n");
     if (!m_deviceController) {
         throw runtime_error("DroneController::registerStateChangeCallback(): invalid device controller");
     }
 
-    eARCONTROLLER_ERROR error = ARCONTROLLER_Device_AddStateChangedCallback (m_deviceController, callback, m_deviceController);
+    eARCONTROLLER_ERROR error = ARCONTROLLER_Device_AddStateChangedCallback (m_deviceController, callback, customData);
 
     if (error != ARCONTROLLER_OK) {
         throw runtime_error("DroneController::registerStateChangeCallback(): failed to register callback");
     }
 }
 
-void DroneController::registerVideoCallback(unsigned callbackId, const VideoFrameReceivedCallback &videoCallback)
+void DroneController::m_onStateChangedDefault(eARCONTROLLER_DEVICE_STATE newState, eARCONTROLLER_ERROR error, void *customData)
 {
-    if (!m_deviceController) {
-        throw runtime_error("DroneController::registerStateChangeCallback(): invalid device controller");
-    }
 
-    eARCONTROLLER_ERROR error;
-    switch (callbackId) {
-    case 1 :
-        error = ARCONTROLLER_Device_SetVideoStreamCallbacks (m_deviceController, decoderConfigCallback1, videoCallback, NULL , NULL);
+    printf("stageChanged newState: %d ....\n", newState);
+    DroneController *droneController = (DroneController *)(customData); // The custom data is a pointer to the class instance
+
+    droneController->setLastState(newState);
+    droneController->notifyStateChange();
+
+    switch (newState)
+    {
+    case ARCONTROLLER_DEVICE_STATE_STOPPED:
         break;
 
-    case 2 :
-        error = ARCONTROLLER_Device_SetVideoStreamCallbacks (m_deviceController, decoderConfigCallback2, videoCallback, NULL , NULL);
+    case ARCONTROLLER_DEVICE_STATE_RUNNING:
         break;
 
-    default :
-        error = ARCONTROLLER_Device_SetVideoStreamCallbacks (m_deviceController, decoderConfigCallback0, videoCallback, NULL , NULL);
+    default:
         break;
-    }
-
-    if (error != ARCONTROLLER_OK) {
-        throw runtime_error("DroneController::registerStateChangeCallback(): failed to register callback");
     }
 }
+
 
 } // wscDrone

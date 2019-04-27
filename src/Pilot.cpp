@@ -13,6 +13,8 @@ using namespace std;
 using namespace chrono_literals;
 namespace wscDrone {
 
+constexpr int PILOT_TIMEOUT_MS = 10000;
+
 Pilot::Pilot(std::shared_ptr<DroneController> droneController)
 {
     m_deviceController = droneController->getDeviceController();
@@ -21,7 +23,16 @@ Pilot::Pilot(std::shared_ptr<DroneController> droneController)
     }
 }
 
-eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE Pilot::getFlyingState()
+void Pilot::notifyMoveComplete()
+{
+    moveSem.notify();
+}
+
+bool Pilot::waitMoveComplete() {
+    return !moveSem.waitTimed(PILOT_TIMEOUT_MS);
+}
+
+eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE Pilot::getFlyingStateRaw()
 {
     if (!m_deviceController) {
         throw runtime_error("Pilot::getFlyingState(): invalid device controller");
@@ -57,10 +68,18 @@ void Pilot::takeOff()
         throw runtime_error("Pilot::takeOff(): invalid device controller");
     }
 
-    if (getFlyingState() == ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED)
+    FlyingState flyingState = getFlyingState();
+    //if (getFlyingState() == ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED)
+    if (flyingState == FlyingState::LANDED)
     {
         printf("takeOff(): PILOTING: Sending takeoff command\n");
         m_deviceController->aRDrone3->sendPilotingTakeOff(m_deviceController->aRDrone3);
+
+        // wait until state is hovering
+        waitMilliseconds(5);
+        while (m_flyingState != FlyingState::HOVERING) {
+            waitMilliseconds(5);
+        }
     } else {
         printf("takeOff(): Can't takeoff, drone is not in LANDED state\n");
     }
@@ -72,8 +91,11 @@ void Pilot::land()
         throw runtime_error("Pilot::land(): invalid device controller");
     }
 
-    eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE flyingState = getFlyingState();
-    if (flyingState == ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING || flyingState == ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING)
+    //eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE flyingState = getFlyingState();
+    //FlyingState flyingState = getFlyingState();
+    //if (flyingState == ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING || flyingState == ARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING)
+
+    // Send land unconditionally to avoid any risk of the command being ignored by a coding bug
     {
         printf("land(): PILOTING: Sending the landing command\n");
         m_deviceController->aRDrone3->sendPilotingLanding(m_deviceController->aRDrone3);
@@ -87,7 +109,7 @@ bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool
 
     m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degressToRadians(heading)); // not implemented in the SDK yet
     if (wait) {
-        timedOut = moveSem.waitTimed(10000);
+        timedOut = waitMoveComplete();
     }
     // wait until out of flying state, should go to hovering
     while (m_flyingState != FlyingState::HOVERING) {

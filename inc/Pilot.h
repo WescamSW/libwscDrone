@@ -71,9 +71,13 @@ public:
     Pilot(std::shared_ptr<wscDrone::DroneController> droneController);
     ~Pilot() {} ///< default destructor
 
-    /// getthe current ARSDK3 flying state of the drone
+    /// get the current RAW ARSDK3 flying state of the drone
     /// @returns the current ARSDK3 flying state of the drone
-    eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE getFlyingState();
+    eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE getFlyingStateRaw();
+
+    /// Get the current flying state
+    /// @returns the current flying state
+    FlyingState getFlyingState() { return m_flyingState; }
 
     void takeOff(); ///< instruct the drone to take off
     void land();    ///< instruct the drone to land
@@ -103,10 +107,10 @@ public:
 
     /// Call this function to notify the Pilot class that a Move has been completed. Typically called from
     /// a callback when the move-complete event is received
-    void notifyMoveComplete() { moveSem.notify(); }
+    void notifyMoveComplete();
 
     /// Call this funnction after executing a move command to block the thread until the move is complete.
-    void waitMoveComplete() { moveSem.wait(); }
+    bool waitMoveComplete();
 
 private:
     Semaphore moveSem;  ///< A semaphore to sync move events between this thread and the callback thread
