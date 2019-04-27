@@ -38,13 +38,27 @@ constexpr float LEFT_180_DEGREES  = -180.0f;
 constexpr float RIGHT_270_DEGREES =  270.0f;
 constexpr float LEFT_270_DEGREES  = -270.0f;
 
+constexpr float MOVEMENT_STEP     = 0.25f;
+
 /// List of drone flying states
 enum class FlyingState : int {
     LANDED = 0,     ///< drone is landed
     TAKING_OFF = 1, ///< drone is in the process of taking off
     HOVERING = 2,   ///< drone is currently hovering, holding position
     FLYING = 3,     ///< drone is currently flying (moving)
-    LANDING = 4     ///< drone is in the process of landing
+    LANDING = 4,     ///< drone is in the process of landing
+    EMERGENCY = 5,     ///< drone has something gone bad right now
+    MOTOR_SPINUP = 7,     ///< drone has motors starting and spinning up
+};
+
+/// List of drone movement directions
+enum class MoveDirection : int {
+    UP      = 0, ///< move drone upward
+    DOWN    = 1, ///< move drone downwards
+    FORWARD = 2, ///< move drone forward in relation to current heading
+    BACK    = 3, ///< move drone backward in relation to current heading
+    RIGHT   = 4, ///< move drone right in relation to current heading
+    LEFT    = 5, ///< move drone left in relation to current heading
 };
 
 /// This class provides an API to control the movement of the drone.
@@ -66,12 +80,16 @@ public:
 
     /// Instruct the drone to move to a position relative to it's current position.
     /// @param dx displacement in meters to the right (positive) or left (negative)
-    /// @param dy displacement in meters forward (positve) or backwards (negative)
+    /// @param dy displacement in meters forward (positive) or backwards (negative)
     /// @param dz displacement in meters down (positive) or up (negative)
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
     /// Positive numbers are clockwise rotation.
-    /// @param wait when true, this function will block until move is completed
-    void moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+    /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
+    bool moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+    
+    /// Instruct the drone to move in the specified direction
+    /// @param direction direction to move the drone, will move MOVEMENT_STEP distance
+    void moveDirection(MoveDirection direction);
 
     /// Set the drones orientation without moving
     /// @param heading the desired orientation in degrees, 0 degrees is the current heading.
@@ -81,7 +99,7 @@ public:
     /// Set the flying state of the drone. NOTE: this is typically called within a callback when the drone
     /// state changes.
     /// @param state the flying state of the drone
-    void setFlyingState(int state);
+    void setFlyingState(int state, bool debug = false);
 
     /// Call this function to notify the Pilot class that a Move has been completed. Typically called from
     /// a callback when the move-complete event is received

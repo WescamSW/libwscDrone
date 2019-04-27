@@ -4,12 +4,13 @@
  *  Created on: Feb 3, 2019
  *      Author: slascos
  */
+#include <chrono>
 #include <stdexcept>
 #include "Utils.h"
 #include "Pilot.h"
 
 using namespace std;
-
+using namespace chrono_literals;
 namespace wscDrone {
 
 Pilot::Pilot(std::shared_ptr<DroneController> droneController)
@@ -80,14 +81,48 @@ void Pilot::land()
 }
 
 // NOTE:sendPilotingMoveBy expects radians
-void Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
+bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
 {
+    bool timedOut = true;
+
     m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degressToRadians(heading)); // not implemented in the SDK yet
     if (wait) {
-        moveSem.wait();
+        timedOut = moveSem.waitTimed(10000);
     }
     // wait until out of flying state, should go to hovering
-    while (m_flyingState == FlyingState::FLYING) {}
+    while (m_flyingState != FlyingState::HOVERING) {
+    	waitMilliseconds(5);
+    }
+
+    // Return true on success, false on timeout.
+    return !timedOut;
+}
+
+void Pilot::moveDirection(MoveDirection dir)
+{
+    switch(dir) {
+        case MoveDirection::UP:
+            // NOTE: -negative numbers mean increase altitude!
+            moveRelativeMetres(0.0f, 0.0f, -MOVEMENT_STEP);
+            break;
+        case MoveDirection::DOWN:
+            moveRelativeMetres(0.0f, 0.0f, MOVEMENT_STEP);
+            break;
+        case MoveDirection::FORWARD:
+            moveRelativeMetres(MOVEMENT_STEP, 0.0f, 0.0f);
+            break;
+        case MoveDirection::BACK:
+            moveRelativeMetres(-MOVEMENT_STEP, 0.0f, 0.0f);
+            break;
+        case MoveDirection::RIGHT:
+            moveRelativeMetres(0.0f, MOVEMENT_STEP, 0.0f);
+            break;
+        case MoveDirection::LEFT:
+            moveRelativeMetres(0.0f, -MOVEMENT_STEP, 0.0f);
+            break;
+        default:
+            break;
+    }
 }
 
 void Pilot::setHeading(float heading)
@@ -96,9 +131,39 @@ void Pilot::setHeading(float heading)
     //waitSeconds(5); // the finish move event will trigger before the heading is complete so we must force a wait.
 }
 
-void Pilot::setFlyingState(int state)
-{
-    m_flyingState = static_cast<FlyingState>(state);
+void Pilot::setFlyingState(int state, bool debug)
+{ 
+    FlyingState temp = static_cast<FlyingState>(state);
+
+    if (debug) {
+	    switch(temp) {
+		case FlyingState::HOVERING:
+			printf("change to Hovering State \n");
+			break;
+		case FlyingState::FLYING:
+			printf("change to Flying State \n");
+			break;
+		case FlyingState::TAKING_OFF:
+			printf("change to TakeOFF State\n");
+			break;
+		case FlyingState::LANDING:
+			printf("change to Landing State \n");
+			break;
+		case FlyingState::LANDED:
+			printf("change to Landed State\n");
+			break;
+		case FlyingState::EMERGENCY:
+			printf("change to Emergency State, Drone Landing.\n");
+			break;
+		case FlyingState::MOTOR_SPINUP:
+			printf("change to Spinup State, Drone Motors Spining up.\n");
+			break;
+		default:
+			printf("ERROR: Unhandled State=%d\n", state);
+			break;
+	    }
+    }
+    m_flyingState = temp;
 }
 
 }

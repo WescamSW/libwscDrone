@@ -27,6 +27,10 @@ constexpr float PI_3_DIV_2_F = atan(1)*4*3/2; ///< 270 degress
 /// @param seconds time to sleep in seconds
 void waitSeconds(int seconds);
 
+/// Create a blocking sleep function, specified in milliseconds
+/// @param milliseconds time to sleep in milliseconds
+void waitMilliseconds(int milliseconds);
+
 /// Convert degrees to radians
 /// @param degrees the angle in degrees
 /// @returns the angle converted to radians

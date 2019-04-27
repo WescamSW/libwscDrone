@@ -18,7 +18,9 @@
 
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
 
+using namespace std::chrono_literals;
 namespace wscDrone {
 
 /// A semaphore based on C++11 mutex locks. This code was taken from some
@@ -49,6 +51,30 @@ public:
 
         --count;
     }
+
+    /// Semaphore wait
+    // Returns TRUE if we've timed out
+    bool waitTimed(unsigned int time)
+    {
+	bool ret = false;
+        std::unique_lock<std::mutex> lck(mtx);
+        while(count == 0)
+        {
+            if (cv.wait_for(lck, time*1ms) == std::cv_status::timeout) {
+	        ret = true;
+            }
+        }
+
+        --count;
+
+	return ret;
+    }
+
+    int getCount()
+    {
+	return count;
+    }
+
 
 private:
 
