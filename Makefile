@@ -81,14 +81,12 @@ CPPFLAGS     += -I$(LOCAL_INCDIR) -I$(API_INCDIR) $(SYS_INC_DIRS)
 CXXFLAGS     += -std=c++14 $(COMMON_FLAGS)
 LDFLAGS      += -shared -fPIC
 
-
-
-# for Bebop2 SDK
-SYS_DYN_LIBS_LIST += arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
-SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
 #for FFMPEG
 SYS_DYN_LIBS_LIST += avformat avcodec avutil swscale
-SYS_STAT_LIBS_LIST =
+# for Bebop2 SDK
+SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
+SYS_STAT_LIBS_LIST = arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
+SYS_STAT_LIBS_LIST += 
 
 API_HEADER_LIST = \
                   Bebop2 \
