@@ -1,0 +1,1 @@
+cmd='./bootstrap.sh;--with-libraries=python;--with-python=/usr/bin/python'
