@@ -85,7 +85,7 @@ LDFLAGS      += -shared -fPIC
 SYS_DYN_LIBS_LIST += avformat avcodec avutil swscale
 # for Bebop2 SDK
 SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
-SYS_STAT_LIBS_LIST = arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
+SYS_DYN_LIBS_LIST = arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
 SYS_STAT_LIBS_LIST += 
 
 API_HEADER_LIST = \
