@@ -46,7 +46,7 @@ public:
     void landDrone();
     void stopDrone();
 
-    unsigned char * exporter();
+    char * getFrameBuffer();
 
     /// Get the current battery level
     /// @returns battery level 0 to 100.

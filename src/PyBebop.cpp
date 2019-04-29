@@ -142,11 +142,11 @@ void PyBebop::startDrone()
     cout << "Done drone start" << endl;
 }
 
-unsigned char * PyBebop::exporter()
+char * PyBebop::getFrameBuffer()
 {
-    unsigned char test[5];
-    return test;
-    // return m_frame->getRawPointer();
+    // char test[5];
+    // return test;
+    return m_frame->getRawPointer();
 }
 
 void PyBebop::setFlightAltitude()
@@ -300,12 +300,12 @@ void PyBebop::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey
 #include <boost/python.hpp>
 #include <boost/python/stl_iterator.hpp>
 
-PyObject* example_class_export_wrap(PyBebop& self)
+PyObject* getFrameBuffer_wrap(PyBebop& self)
 {
     PyObject* pymemview;
-    unsigned char* export_data;
+    char* export_data;
 
-    export_data = self.exporter();
+    export_data = self.getFrameBuffer();
 
     pymemview = PyMemoryView_FromMemory((char*) export_data, 3, PyBUF_READ);
     // return PyBytes_FromObject(pymemview);
@@ -326,7 +326,7 @@ BOOST_PYTHON_MODULE(libwscDrone)
         .def("landDrone", &PyBebop::landDrone)
         .def("stopDrone", &PyBebop::stopDrone)
         // .def("getFrameBuffer", &PyBebop::getFrameBuffer)
-        .def("exporter", &example_class_export_wrap)
+        .def("getFrameBuffer", &getFrameBuffer_wrap)
         // .def("getBatteryLevel", &PyBebop::getBatteryLevel)
         // .def("setBatteryLevel", &PyBebop::setBatteryLevel)
     ;
