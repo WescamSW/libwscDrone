@@ -46,6 +46,8 @@ public:
     void landDrone();
     void stopDrone();
 
+    unsigned char * exporter();
+
     /// Get the current battery level
     /// @returns battery level 0 to 100.
     unsigned getBatteryLevel() { return m_batteryLevel; }
@@ -69,7 +71,6 @@ private:
     std::shared_ptr<wscDrone::Pilot>              m_pilot           = nullptr; ///< shared pointer to Pilot class
     std::shared_ptr<wscDrone::VideoDriver>        m_video           = nullptr; ///< shared pointer to VideoDriver class
     std::shared_ptr<VideoFrameGeneric>            m_frame           = nullptr; ///< shared pointer to VideoDriver class
-    // std::shared_ptr<wscDrone::VideoDriver>     m_video           = nullptr; ///< shared pointer to VideoDriver class
 
     /// Get a shared pointer to the DroneController class
     /// @returns shared pointer to drone controller class
