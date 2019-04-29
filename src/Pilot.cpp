@@ -4,6 +4,7 @@
  *  Created on: Feb 3, 2019
  *      Author: slascos
  */
+#include <iostream>
 #include <chrono>
 #include <stdexcept>
 #include "Utils.h"
@@ -11,16 +12,19 @@
 
 using namespace std;
 using namespace chrono_literals;
+
 namespace wscDrone {
 
 constexpr int PILOT_TIMEOUT_MS = 10000;
+constexpr float MOVEMENT_STEP     = 0.25f;
 
-Pilot::Pilot(std::shared_ptr<DroneController> droneController)
+Pilot::Pilot(std::shared_ptr<DroneController> droneController, float initialFlightAltitude)
 {
     m_deviceController = droneController->getDeviceController();
     if (!m_deviceController) {
         throw runtime_error("Pilot(...): invalid deviceController");
     }
+    m_initialFlightAltitude = initialFlightAltitude;
 }
 
 void Pilot::notifyMoveComplete()
@@ -83,6 +87,11 @@ void Pilot::takeOff()
     } else {
         printf("takeOff(): Can't takeoff, drone is not in LANDED state\n");
     }
+
+    // Set initial flight altitude
+    if (m_initialFlightAltitude > 1.0f) {
+        m_moveRelativeMetres(0.0f, 0.0f, -(m_initialFlightAltitude - 1.0f), 0.0f);
+    }
 }
 
 void Pilot::land()
@@ -102,8 +111,13 @@ void Pilot::land()
     }
 }
 
+bool Pilot::moveRelativeMetres(float dx, float dy, float heading, bool wait)
+{
+    return m_moveRelativeMetres(dx, dy, 0.0f, heading, wait);
+}
+
 // NOTE:sendPilotingMoveBy expects radians
-bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
+bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
 {
     bool timedOut = true;
 
@@ -123,24 +137,33 @@ bool Pilot::moveRelativeMetres(float dx, float dy, float dz, float heading, bool
 void Pilot::moveDirection(MoveDirection dir)
 {
     switch(dir) {
+#ifndef RESTRICTED_ALTITUDE
+#warning "HEIGHT IS UNRESTRICTED"
         case MoveDirection::UP:
             // NOTE: -negative numbers mean increase altitude!
-            moveRelativeMetres(0.0f, 0.0f, -MOVEMENT_STEP);
+            m_moveRelativeMetres(0.0f, 0.0f, -MOVEMENT_STEP);
             break;
         case MoveDirection::DOWN:
-            moveRelativeMetres(0.0f, 0.0f, MOVEMENT_STEP);
+            m_moveRelativeMetres(0.0f, 0.0f, MOVEMENT_STEP);
             break;
+#else
+#warning "HEIGHT IS RESTRICTED"
+        case MoveDirection::UP :
+        case MoveDirection::DOWN :
+            std::cout << "*** CHANGING ALTITUDE IS RESTRICTED!!! ***" << std::endl;
+            break;
+#endif
         case MoveDirection::FORWARD:
-            moveRelativeMetres(MOVEMENT_STEP, 0.0f, 0.0f);
+            m_moveRelativeMetres(MOVEMENT_STEP, 0.0f, 0.0f);
             break;
         case MoveDirection::BACK:
-            moveRelativeMetres(-MOVEMENT_STEP, 0.0f, 0.0f);
+            m_moveRelativeMetres(-MOVEMENT_STEP, 0.0f, 0.0f);
             break;
         case MoveDirection::RIGHT:
-            moveRelativeMetres(0.0f, MOVEMENT_STEP, 0.0f);
+            m_moveRelativeMetres(0.0f, MOVEMENT_STEP, 0.0f);
             break;
         case MoveDirection::LEFT:
-            moveRelativeMetres(0.0f, -MOVEMENT_STEP, 0.0f);
+            m_moveRelativeMetres(0.0f, -MOVEMENT_STEP, 0.0f);
             break;
         default:
             break;
@@ -149,8 +172,7 @@ void Pilot::moveDirection(MoveDirection dir)
 
 void Pilot::setHeading(float heading)
 {
-    moveRelativeMetres(0.0f, 0.0f, 0.0f, heading);
-    //waitSeconds(5); // the finish move event will trigger before the heading is complete so we must force a wait.
+    m_moveRelativeMetres(0.0f, 0.0f, 0.0f, heading);
 }
 
 void Pilot::setFlyingState(int state, bool debug)

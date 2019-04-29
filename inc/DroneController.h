@@ -31,11 +31,16 @@ extern "C" {
 }
 #endif
 
-
 #include "Semaphore.h"
 #include "DroneDiscovery.h"
 
 namespace wscDrone {
+
+// Forward declare some classes so they can be friended. This permits restricted access to the
+// underlying ARSDK.
+class CameraControl;
+class Pilot;
+class VideoDriver;
 
 /// alias for ARSDK3 ARCONTROLLER_Device_StateChangedCallback_t
 using StateChangeCallback     = ARCONTROLLER_Device_StateChangedCallback_t;
@@ -52,10 +57,6 @@ public:
     /// @param droneDiscovery smart pointer to an instance of DroneDiscovery
     DroneController(std::shared_ptr<DroneDiscovery> droneDiscovery);
     ~DroneController();
-
-    /// get a raw ARSD3 pointer to the associated device controller
-    /// @returns raw pointer to ARSD3 device controller
-    ARCONTROLLER_Device_t *getDeviceController() { return m_deviceController; }
 
     /// Register the user callback for processing received commands
     /// @param callback the function name of the callback
@@ -82,13 +83,22 @@ public:
     /// @returns the last state received
     eARCONTROLLER_DEVICE_STATE getLastState() { return m_lastState; }
 
-    void setLastState(eARCONTROLLER_DEVICE_STATE lastState) { m_lastState = lastState; }
-
     /// Start the drones device control interface
     void start();
 
     /// Stop the drones device control interface
     void stop();
+
+protected:
+    friend CameraControl;
+    friend Pilot;
+    friend VideoDriver;
+
+    // get a raw ARSD3 pointer to the associated device controller
+    // @returns raw pointer to ARSD3 device controller
+    ARCONTROLLER_Device_t *getDeviceController() { return m_deviceController; }
+
+    void setLastState(eARCONTROLLER_DEVICE_STATE lastState) { m_lastState = lastState; }
 
 private:
     std::shared_ptr<Semaphore> m_stateSemaphore   = nullptr; ///< smart pointer to the state semaphore

@@ -63,7 +63,7 @@ public:
     /// @returns smart pointer to a mutex
     std::shared_ptr<std::mutex> getBufferMutex() { return m_bufferGuard; }
 
-    /// Set a smart pointer to the VideoFrame object used by the video driver
+    /// Set a smart pointer to the VideoFrame object used by the video driver. This replaces the one provided during construction.
     /// @param frame a smart pointer to an instance of VideoFrame
     void setFrame(std::shared_ptr<VideoFrame> frame);
 
