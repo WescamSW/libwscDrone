@@ -81,6 +81,9 @@ public:
     void takeOff(); ///< instruct the drone to take off
     void land();    ///< instruct the drone to land
 
+    /// THIS FUNCTION IS AN EMERGENCY ENGINE CUT. THE DRONE WILL FALL!!!
+    void CUT_THE_MOTORS();
+
     /// Instruct the drone to move to a position relative to it's current position.
     /// @param dx displacement in meters to the right (positive) or left (negative)
     /// @param dy displacement in meters forward (positive) or backwards (negative)

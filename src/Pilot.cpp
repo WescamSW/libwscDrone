@@ -27,6 +27,12 @@ Pilot::Pilot(std::shared_ptr<DroneController> droneController, float initialFlig
     m_initialFlightAltitude = initialFlightAltitude;
 }
 
+// THE DRONE WILL FALL!!!
+void Pilot::CUT_THE_MOTORS()
+{
+    m_deviceController->aRDrone3->sendPilotingEmergency(m_deviceController->aRDrone3);
+}
+
 void Pilot::notifyMoveComplete()
 {
     moveSem.notify();
