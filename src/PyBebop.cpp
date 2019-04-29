@@ -8,13 +8,16 @@
 // #include <cstdio>
 #include <iostream>
 
-#include <boost/python.hpp>
+
 
 #include "PyBebop.h"
+
 
 using namespace std;
 
 const std::string BEBOP_IP_ADDRESS = "192.168.42.1";
+
+using VideoFrameGeneric = PyFrame;
 
 PyBebop::PyBebop(int callSign)
 {
@@ -53,13 +56,14 @@ PyBebop::PyBebop(int callSign)
     m_droneController = std::make_shared<wscDrone::DroneController>(m_droneDiscovery);
     m_camera          = std::make_shared<wscDrone::CameraControl>(m_droneController);
     m_pilot           = std::make_shared<wscDrone::Pilot>(m_droneController);
-    // m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
+    m_frame           = std::make_shared<VideoFrameGeneric>(wscDrone::BEBOP2_STREAM_HEIGHT, wscDrone::BEBOP2_STREAM_WIDTH);
+    m_video           = std::make_shared<wscDrone::VideoDriver>(m_droneController, m_frame);
 
     m_droneController->registerCommandReceivedCallback(m_onCommandReceivedDefault, this);
 
 
 
-    initDrone();
+    // initDrone();
     startDrone();
 
     // for (int i = 0; i < g_drones.size(); i++) {
@@ -93,7 +97,7 @@ void PyBebop::landDrone()
 void PyBebop::stopDrone()
 {
     landDrone();
-    m_video->stop();
+    // m_video->stop();
     m_droneController->stop();
 }
 
@@ -107,43 +111,34 @@ void PyBebop::initDrone()
 //         exit(EXIT_SUCCESS);
 //     }
 
-//     if (numberOfDrones >= 1) {
-//         g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
-//         g_drones.emplace_back(make_shared<Bebop2>(Callsign::ALPHA, g_frames[0]));
-//     }
+    // if (droneIdx == 1) {
+    //     );
+    // } else if (droneIdx == 2) {
+    //     g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
+    //     g_drones.emplace_back(make_shared<Bebop2>(Callsign::LONE_WOLF, g_frames[1]));
+    // }
 
-//     if (numberOfDrones >= 2) {
-//         g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
-//         g_drones.emplace_back(make_shared<Bebop2>(Callsign::LONE_WOLF, g_frames[1]));
-//     }
+    // if (droneIdx == 3) {
+    //     g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
+    //     g_drones.emplace_back(make_shared<Bebop2>(Callsign::BRAVO, g_frames[2]));
+    // }
 
-//     if (numberOfDrones >= 3) {
-//         g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
-//         g_drones.emplace_back(make_shared<Bebop2>(Callsign::BRAVO, g_frames[2]));
-//     }
-
-//     if (numberOfDrones >= 4) {
-//         g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
-//         g_drones.emplace_back(make_shared<Bebop2>(Callsign::CHARLIE, g_frames[3]));
-//     }
+    // if (droneIdx == 4) {
+    //     g_frames.emplace_back(make_shared<VideoFrameGeneric>(BEBOP2_STREAM_HEIGHT, BEBOP2_STREAM_WIDTH));
+    //     g_drones.emplace_back(make_shared<Bebop2>(Callsign::CHARLIE, g_frames[3]));
+    // }
     cout << "Done drone init" << endl;
 }
 
 void PyBebop::startDrone()
 {
-
-//     ControlPtr       control = g_drones[droneId]->getDroneController();
-//     CameraControlPtr camera  = g_drones[droneId]->getCameraControl();
-//     PilotPtr         pilot   = g_drones[droneId]->getPilot();
-//     VideoDriverPtr   video   = g_drones[droneId]->getVideoDriver();
-
-//     control->start();
-//     cout << "Done CONTROL START" << endl;
-//     waitSeconds(1);
-//     video->start();
-//     cout << "Done VIDEO START" << endl;
-//     camera->setForward();
-//     waitSeconds(1);
+    m_droneController->start();
+    cout << "Done CONTROL START" << endl;
+    wscDrone::waitSeconds(1);
+    m_video->start();
+    cout << "Done VIDEO START" << endl;
+    m_camera->setForward();
+    wscDrone::waitSeconds(1);
     cout << "Done drone start" << endl;
 }
 
@@ -278,6 +273,8 @@ void PyBebop::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey
 }
 
 
+#include <boost/python.hpp>
+
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(libwscDrone)
@@ -285,6 +282,11 @@ BOOST_PYTHON_MODULE(libwscDrone)
     class_<PyBebop>("PyBebop", init<int>())
         // .def("changeCount", &PyBebop::PyBebop)
         .def("changeCount", &PyBebop::changeCount)
+        // .def("takeoffDrone", &PyBebop::takeoffDrone)
+        // .def("landDrone", &PyBebop::landDrone)
+        // .def("stopDrone", &PyBebop::stopDrone)
+        // .def("getBatteryLevel", &PyBebop::getBatteryLevel)
+        // .def("setBatteryLevel", &PyBebop::setBatteryLevel)
     ;
 }
 
