@@ -46,10 +46,12 @@ public:
     Bebop2() = delete;
     /// Construct a Bebop2 control instance using the specified IP address.
     /// @param ipAddress the IP address of the drone you wish to control.
+    /// @param frame the VideoFrame object to associate with the drone
     Bebop2(std::string ipAddress, std::shared_ptr<VideoFrame> frame);
 
     /// Construct a Bebop2 control instance using the Callsign
     /// @param callsign the enumerated label for the desired drone to control
+    /// @param frame the VideoFrame object to associate with the drone
     Bebop2(Callsign callsign, std::shared_ptr<VideoFrame> frame);
 
     /// Default destructor

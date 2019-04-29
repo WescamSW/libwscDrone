@@ -66,6 +66,7 @@ public:
     Pilot() = delete;
     /// Construct an instance for the specified DroneController
     /// @param droneController smart pointer to  a DroneController instance
+    /// @param initialFlightAltitude specifies the drones initial altitdue in metres after takeoff
     Pilot(std::shared_ptr<wscDrone::DroneController> droneController, float initialFlightAltitude);
     ~Pilot() {} ///< default destructor
 
@@ -85,6 +86,7 @@ public:
     /// @param dy displacement in meters forward (positive) or backwards (negative)
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
     /// Positive numbers are clockwise rotation.
+    /// @param wait when true the call blocks until the move is done
     /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
     bool moveRelativeMetres(float dx, float dy, float heading = 0.0, bool wait = true);
     
@@ -100,6 +102,7 @@ public:
     /// Set the flying state of the drone. NOTE: this is typically called within a callback when the drone
     /// state changes.
     /// @param state the flying state of the drone
+    /// @param debug when true, verbose debug messages are printed
     void setFlyingState(int state, bool debug = false);
 
     /// Call this function to notify the Pilot class that a Move has been completed. Typically called from
@@ -120,6 +123,7 @@ private:
     /// @param dy displacement in meters forward (positive) or backwards (negative)
     /// @param dz displacement in meters down (positive) or up (negative)
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
+    /// @param wait when true the call blocks until the move is done
     /// Positive numbers are clockwise rotation.
     /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
     bool m_moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);

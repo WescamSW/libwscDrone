@@ -45,6 +45,7 @@ public:
 
     /// Construct a CameraControl instance for the provided droneController
     /// @param droneController a smart pointer to an  instance of DroneController
+    /// @param photoType Specifies what type of photos to provide
     CameraControl(std::shared_ptr<DroneController> droneController, PhotoType photoType);
 
     // Default destructor

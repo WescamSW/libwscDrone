@@ -51,12 +51,14 @@ public:
     VideoDriver() = delete;
     /// Construct a VideoDriver with an associated DroneController
     /// @param droneController smart pointer to a DroneController instance
+    /// @param frame a smart pointer to a VideoFrame object for streaming video
     VideoDriver(std::shared_ptr<wscDrone::DroneController> droneController, std::shared_ptr<VideoFrame> frame);
     ~VideoDriver(); ///< default destructor
 
     /// Register the callbacks for the video decoder and new frame
     /// @param decoderCallback the callback function to execute when the drones H.264 encoder changes
     /// @param videoCallback the callback function to exectue when a new frame is received
+    /// @param customData a raw pointer to the actual VideoDriver instance
     void registerVideoCallback(const VideoDecoderConfigCallback &decoderCallback, const VideoFrameReceivedCallback &videoCallback, void *customData);
 
     /// Get a smart pointer to the mutex guarding the video buffer
