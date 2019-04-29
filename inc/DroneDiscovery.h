@@ -36,6 +36,9 @@ extern "C" {
 
 namespace wscDrone {
 
+// Forward declare classes for friendship
+class DroneController;
+
 class DroneDiscovery {
 public:
     DroneDiscovery() = delete;
@@ -43,6 +46,9 @@ public:
     /// @param ipAddress the IP address as a string
     DroneDiscovery(std::string ipAddress);
     ~DroneDiscovery(); //< default destructor
+
+protected:
+    friend DroneController;
 
     /// Get a raw pointer to the discovery device
     /// @returns a raw pointer to the ARSDK3 discovery device

@@ -1,4 +1,9 @@
 /**
+
+THIS FILE IS NOT WRITTEN BY WESCAM, it contains driver code from Robot Operating System that has been
+adapted for our purposes. The original copyright follows:
+
+
 Software License Agreement (BSD)
 
 \file      VideoDecoder.h

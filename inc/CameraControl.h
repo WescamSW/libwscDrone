@@ -32,6 +32,11 @@ extern "C" {
 
 namespace wscDrone {
 
+enum class PhotoType {
+    RAW = 0, ///< RAW DNG format images
+    JPEG     ///< JPEG compressed images
+};
+
 /// The CameraControl class permits the user to access the virtual tilt and pan
 /// functions of the 180 degree FOV wide-angle camera.
 class CameraControl {
@@ -40,17 +45,10 @@ public:
 
     /// Construct a CameraControl instance for the provided droneController
     /// @param droneController a smart pointer to an  instance of DroneController
-    CameraControl(std::shared_ptr<DroneController> droneController);
+    CameraControl(std::shared_ptr<DroneController> droneController, PhotoType photoType);
 
     // Default destructor
     ~CameraControl() {};
-
-    /// Wait until camera change complte
-    /// @returns true if success, otherwise false on timeout
-    //bool waitForCameraChange();
-
-    /// trigger a notify of the camera change
-    //void notifyCameraChange();
 
     /// Change the orientation of the camera
     /// @param tilt angle specified in degrees. Positive (negative) numbers tilt up (down)
@@ -65,7 +63,8 @@ public:
 
 private:
     ARCONTROLLER_Device_t *m_deviceController = nullptr; ///< smart pointer to a DeviceController
-    //std::shared_ptr<Semaphore> m_cameraSemaphore = nullptr;
+    PhotoType m_photoType;
+
 };
 
 }
