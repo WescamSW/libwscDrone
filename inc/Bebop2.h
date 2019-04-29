@@ -85,6 +85,10 @@ public:
     /// it directly.
     void setBatteryLevel(unsigned level) { m_batteryLevel = level; }
 
+    /// Get the IP address of the drone
+    /// @returns IP address as a string
+    std::string getIpAddress() { return m_ipAddress; }
+
 private:
     Callsign    m_callsign;         ///< callsign of the drone
     std::string m_ipAddress;        ///< ipAddress of the drone under control
