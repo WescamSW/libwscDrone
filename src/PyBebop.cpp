@@ -142,6 +142,13 @@ void PyBebop::startDrone()
     cout << "Done drone start" << endl;
 }
 
+unsigned char * PyBebop::exporter()
+{
+    unsigned char test[5];
+    return test;
+    // return m_frame->getRawPointer();
+}
+
 void PyBebop::setFlightAltitude()
 {
     wscDrone::waitSeconds(5);
@@ -273,7 +280,40 @@ void PyBebop::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey
 }
 
 
+// #include <boost/python.hpp>
+// #include <boost/python/stl_iterator.hpp>
+
+// PyObject* array_export_wrap(PyBebop& self)
+// {
+//     PyObject* pymemview;
+//     // unsigned char* export_data;
+//     char* export_data;
+
+//     export_data = self.getFrameBuffer();
+
+//     int arraySize = wscDrone::BEBOP2_STREAM_HEIGHT* wscDrone::BEBOP2_STREAM_WIDTH*3;
+//     pymemview = PyMemoryView_FromMemory((char*) export_data, 3, PyBUF_READ);
+
+//     return pymemview;
+// }
+
 #include <boost/python.hpp>
+#include <boost/python/stl_iterator.hpp>
+
+PyObject* example_class_export_wrap(PyBebop& self)
+{
+    PyObject* pymemview;
+    unsigned char* export_data;
+
+    export_data = self.exporter();
+
+    pymemview = PyMemoryView_FromMemory((char*) export_data, 3, PyBUF_READ);
+    // return PyBytes_FromObject(pymemview);
+    return pymemview;
+}
+
+
+
 
 using namespace boost::python;
 
@@ -282,13 +322,17 @@ BOOST_PYTHON_MODULE(libwscDrone)
     class_<PyBebop>("PyBebop", init<int>())
         // .def("changeCount", &PyBebop::PyBebop)
         .def("changeCount", &PyBebop::changeCount)
-        // .def("takeoffDrone", &PyBebop::takeoffDrone)
-        // .def("landDrone", &PyBebop::landDrone)
-        // .def("stopDrone", &PyBebop::stopDrone)
+        .def("takeoffDrone", &PyBebop::takeoffDrone)
+        .def("landDrone", &PyBebop::landDrone)
+        .def("stopDrone", &PyBebop::stopDrone)
+        // .def("getFrameBuffer", &PyBebop::getFrameBuffer)
+        .def("exporter", &example_class_export_wrap)
         // .def("getBatteryLevel", &PyBebop::getBatteryLevel)
         // .def("setBatteryLevel", &PyBebop::setBatteryLevel)
     ;
 }
+
+
 
 
 /********
