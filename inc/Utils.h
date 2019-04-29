@@ -34,7 +34,7 @@ void waitMilliseconds(int milliseconds);
 /// Convert degrees to radians
 /// @param degrees the angle in degrees
 /// @returns the angle converted to radians
-float degressToRadians(float degrees);
+float degreesToRadians(float degrees);
 
 } // wscDrone
 

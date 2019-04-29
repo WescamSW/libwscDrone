@@ -11,7 +11,7 @@ SHELL = /usr/bin/sh
 endif
 
 ifndef DESTDIR
-DESTDIR = 
+DESTDIR =
 endif
 
 ifndef PREFIX
@@ -86,7 +86,7 @@ SYS_DYN_LIBS_LIST += avformat avcodec avutil swscale
 # for Bebop2 SDK
 SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
 SYS_DYN_LIBS_LIST = arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
-SYS_STAT_LIBS_LIST += 
+SYS_STAT_LIBS_LIST +=
 
 API_HEADER_LIST = \
                   Bebop2 \
@@ -165,4 +165,4 @@ distclean: clean
 	-rm -rf $(DIST_DIR)
 	-rm -rf $(OBJDIR)
 
-	
+

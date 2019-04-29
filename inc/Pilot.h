@@ -16,6 +16,7 @@
 #define PILOT_H_
 
 #include <memory>
+#include <vector>
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,7 +106,7 @@ public:
     /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
     bool moveRelativeMetresRestricted(float dx, float dy, float dz, float heading = 0.0f, bool wait = true);
 #endif
-    
+
     /// Instruct the drone to move in the specified direction
     /// @param direction direction to move the drone, will move MOVEMENT_STEP distance
     void moveDirection(MoveDirection direction);
@@ -128,6 +129,8 @@ public:
     /// Call this funnction after executing a move command to block the thread until the move is complete.
     bool waitMoveComplete();
 
+    void goHome();
+
 private:
     Semaphore moveSem;  ///< A semaphore to sync move events between this thread and the callback thread
     ARCONTROLLER_Device_t *m_deviceController = nullptr; ///< smart pointer to DeviceController instance
@@ -143,6 +146,22 @@ private:
     /// Positive numbers are clockwise rotation.
     /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
     bool m_moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+
+    std::vector <float> homeVector = {0, 0};
+    float rotation  = 0.0f;
+
+    // Clear the rotation and translation
+    void resetHome(std::vector<float> &homeVector, float &rotation);
+    // Rotate by angle (degrees). Input angle is positive for a clockwise rotation.
+    void rotateHome(std::vector<float> &homeVector, float &rotation, float angle);
+    // Translate the home vector by dx and dy. dx and dy are translations
+    // expressed in the rotated (drone) frame which are converted to the home
+    // frame, then added to the home x and y. x is forward for the drone.
+    void translateHome(std::vector<float> &homeVector, float rotation, float dx, float dy);
+
+    float getRotation();
+    float getTranslationX();
+    float getTranslationY();
 
 };
 

@@ -15,6 +15,8 @@ using namespace chrono_literals;
 
 namespace wscDrone {
 
+constexpr unsigned X = 0;
+constexpr unsigned Y = 1;
 constexpr int PILOT_TIMEOUT_MS = 10000;
 constexpr float MOVEMENT_STEP     = 0.25f;
 
@@ -72,8 +74,60 @@ eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATECHANGED_STATE Pilot::getFlyingStat
     return flyingState;
 }
 
+void Pilot::resetHome(std::vector<float> &homeVector, float &rotation)
+{
+    rotation      = 0;
+    homeVector[X] = 0;
+    homeVector[Y] = 0;
+}
+
+void Pilot::rotateHome(std::vector<float> &homeVector, float &rotation, float angle)
+{
+    rotation += angle;
+
+    if (rotation > 180) {
+        rotation = rotation - 360;
+    }
+    else if (rotation < -180) {
+        rotation = rotation + 360;
+    }
+}
+
+void Pilot::translateHome(std::vector<float> &homeVector, float rotation, float dx, float dy)
+{
+
+    float angle_rads = degreesToRadians(rotation);
+
+    homeVector[X] += dx * cos(angle_rads) + dy * sin(angle_rads);
+    homeVector[Y] += dx * sin(angle_rads) + dy * cos(angle_rads);
+}
+
+float Pilot::getRotation()
+{
+    return rotation;
+}
+float Pilot::getTranslationX()
+{
+    return homeVector[X];
+}
+float Pilot::getTranslationY()
+{
+    return homeVector[Y];
+}
+
+void Pilot::goHome()
+{
+    float dx = -homeVector[X];
+    float dy = -homeVector[Y];
+
+    m_moveRelativeMetres(0.0f, 0.0f, 0.0f, -rotation);
+    m_moveRelativeMetres(dx, dy, 0.0f);
+}
+
 void Pilot::takeOff()
 {
+    resetHome(homeVector, rotation); // reset home vector at each take off
+
     if (!m_deviceController) {
         throw runtime_error("Pilot::takeOff(): invalid device controller");
     }
@@ -132,7 +186,14 @@ bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bo
 {
     bool timedOut = true;
 
-    m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degressToRadians(heading)); // not implemented in the SDK yet
+    printf("vect before: %3.3f %2.3f, %2.3f\n", rotation, homeVector[X],homeVector[Y]);
+    // should we do anything different on time out?
+    rotateHome(homeVector, rotation, heading);  // perform rotations first
+    translateHome(homeVector, rotation, dx, dy);
+    printf("vect after: %3.3f %2.3f, %2.3f\n", rotation, homeVector[X], homeVector[Y]);
+
+    /*
+    m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degreesToRadians(heading)); // not implemented in the SDK yet
     if (wait) {
         timedOut = waitMoveComplete();
     }
@@ -140,6 +201,7 @@ bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bo
     while (m_flyingState != FlyingState::HOVERING) {
     	waitMilliseconds(5);
     }
+    */
 
     // Return true on success, false on timeout.
     return !timedOut;
@@ -187,7 +249,7 @@ void Pilot::setHeading(float heading)
 }
 
 void Pilot::setFlyingState(int state, bool debug)
-{ 
+{
     FlyingState temp = static_cast<FlyingState>(state);
 
     if (debug) {
