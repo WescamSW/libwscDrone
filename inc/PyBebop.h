@@ -12,11 +12,13 @@
 #include "DroneController.h"
 #include "CameraControl.h"
 #include "Pilot.h"
+#include "PyFrame.h"
 #include "Utils.h"
 #include "VideoDecoder.h"
 #include "VideoDriver.h"
+#include "VideoFrame.h"
 
-
+using VideoFrameGeneric = PyFrame; //IS THIS OK STEVE??
 
 /// Provide symbolic names as "callsigns" to identify the drones.
 enum class Callsign : unsigned {
@@ -61,11 +63,13 @@ private:
     std::string m_ipAddress;        ///< ipAddress of the drone under control
     unsigned    m_batteryLevel = 0; ///< battery level, 0 to 100
     int         m_flightAltitude = 0;
-    std::shared_ptr<wscDrone::DroneDiscovery>  m_droneDiscovery  = nullptr; ///< shared pointer to DroneDiscovery class
-    std::shared_ptr<wscDrone::DroneController> m_droneController = nullptr; ///< shared pointer to DroneController class
-    std::shared_ptr<wscDrone::CameraControl>   m_camera          = nullptr; ///< shared pointer to CameraControl class
-    std::shared_ptr<wscDrone::Pilot>           m_pilot           = nullptr; ///< shared pointer to Pilot class
-    std::shared_ptr<wscDrone::VideoDriver>     m_video           = nullptr; ///< shared pointer to VideoDriver class
+    std::shared_ptr<wscDrone::DroneDiscovery>     m_droneDiscovery  = nullptr; ///< shared pointer to DroneDiscovery class
+    std::shared_ptr<wscDrone::DroneController>    m_droneController = nullptr; ///< shared pointer to DroneController class
+    std::shared_ptr<wscDrone::CameraControl>      m_camera          = nullptr; ///< shared pointer to CameraControl class
+    std::shared_ptr<wscDrone::Pilot>              m_pilot           = nullptr; ///< shared pointer to Pilot class
+    std::shared_ptr<wscDrone::VideoDriver>        m_video           = nullptr; ///< shared pointer to VideoDriver class
+    std::shared_ptr<VideoFrameGeneric>            m_frame           = nullptr; ///< shared pointer to VideoDriver class
+    // std::shared_ptr<wscDrone::VideoDriver>     m_video           = nullptr; ///< shared pointer to VideoDriver class
 
     /// Get a shared pointer to the DroneController class
     /// @returns shared pointer to drone controller class

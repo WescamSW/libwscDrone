@@ -11,7 +11,7 @@ SHELL = /usr/bin/sh
 endif
 
 ifndef DESTDIR
-DESTDIR = 
+DESTDIR =
 endif
 
 ifndef PREFIX
@@ -60,8 +60,8 @@ OUTPUT_DIRS = $(CURDIR)/obj/ $(CURDIR)/dist/lib $(CURDIR)/dist/include/$(TARGET_
 SRCDIR = $(CURDIR)/src/
 OBJDIR = $(CURDIR)/obj/
 
-SYS_INC_DIRS  = -I=/usr/local/include -I$(ARSDK3)/include
-SYS_LIBS_DIRS = -L=/usr/local/lib -L$(ARSDK3)/lib
+SYS_INC_DIRS  = -I=/usr/local/include -I$(ARSDK3)/include -I /usr/include/python3.6
+SYS_LIBS_DIRS = -L=/usr/local/lib -L$(ARSDK3)/lib -L/usr/bin/python3.6
 
 DYN_TARGET_LIST    = lib$(TARGET_NAME).so.$(LIB_VER)
 STATIC_TARGET_LIST = lib$(TARGET_NAME).a
@@ -88,14 +88,17 @@ SYS_DYN_LIBS_LIST += arsal arcommands ardiscovery arcontroller armedia arnetwork
 SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
 #for FFMPEG
 SYS_DYN_LIBS_LIST += avformat avcodec avutil swscale
+#for Boost
+SYS_DYN_LIBS_LIST += boost_python3
 SYS_STAT_LIBS_LIST =
 
-API_HEADER_LIST = \
-                  Bebop2 \
+API_HEADER_LIST = Bebop2 \
                   DroneDiscovery \
                   DroneController \
                   CameraControl \
                   Pilot \
+                  PyBebop \
+                  PyFrame \
                   VideoDecoder \
                   VideoDriver \
                   Utils \
@@ -107,6 +110,8 @@ CPP_SRC_LIST = Bebop2 \
                DroneController \
                CameraControl \
                Pilot \
+               PyBebop \
+               PyFrame \
                VideoDecoder \
                VideoDriver \
                Utils
@@ -167,4 +172,4 @@ distclean: clean
 	-rm -rf $(DIST_DIR)
 	-rm -rf $(OBJDIR)
 
-	
+
