@@ -116,6 +116,11 @@ bool Pilot::moveRelativeMetres(float dx, float dy, float heading, bool wait)
     return m_moveRelativeMetres(dx, dy, 0.0f, heading, wait);
 }
 
+bool Pilot::moveRelativeMetresRestricted(float dx, float dy, float dz, float heading, bool wait)
+{
+    return m_moveRelativeMetres(dx, dy, dz, heading, wait);
+}
+
 // NOTE:sendPilotingMoveBy expects radians
 bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bool wait)
 {

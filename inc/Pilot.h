@@ -88,7 +88,20 @@ public:
     /// Positive numbers are clockwise rotation.
     /// @param wait when true the call blocks until the move is done
     /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
-    bool moveRelativeMetres(float dx, float dy, float heading = 0.0, bool wait = true);
+    bool moveRelativeMetres(float dx, float dy, float heading = 0.0f, bool wait = true);
+
+#ifndef RESTRICTED_ALTITUDE
+    /// THIS FUNCTION IS NOT AVAILBLE TO HACKATHON CONTESTANTS
+
+    /// Instruct the drone to move to a position relative to it's current position.
+    /// @param dx displacement in meters to the right (positive) or left (negative)
+    /// @param dy displacement in meters forward (positive) or backwards (negative)
+    /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
+    /// Positive numbers are clockwise rotation.
+    /// @param wait when true the call blocks until the move is done
+    /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
+    bool moveRelativeMetresRestricted(float dx, float dy, float dz, float heading = 0.0f, bool wait = true);
+#endif
     
     /// Instruct the drone to move in the specified direction
     /// @param direction direction to move the drone, will move MOVEMENT_STEP distance
