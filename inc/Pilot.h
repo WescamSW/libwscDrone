@@ -38,8 +38,6 @@ constexpr float LEFT_180_DEGREES  = -180.0f;
 constexpr float RIGHT_270_DEGREES =  270.0f;
 constexpr float LEFT_270_DEGREES  = -270.0f;
 
-constexpr float MOVEMENT_STEP     = 0.25f;
-
 /// List of drone flying states
 enum class FlyingState : int {
     LANDED = 0,     ///< drone is landed
@@ -68,7 +66,8 @@ public:
     Pilot() = delete;
     /// Construct an instance for the specified DroneController
     /// @param droneController smart pointer to  a DroneController instance
-    Pilot(std::shared_ptr<wscDrone::DroneController> droneController);
+    /// @param initialFlightAltitude specifies the drones initial altitdue in metres after takeoff
+    Pilot(std::shared_ptr<wscDrone::DroneController> droneController, float initialFlightAltitude);
     ~Pilot() {} ///< default destructor
 
     /// get the current RAW ARSDK3 flying state of the drone
@@ -82,14 +81,30 @@ public:
     void takeOff(); ///< instruct the drone to take off
     void land();    ///< instruct the drone to land
 
+    /// THIS FUNCTION IS AN EMERGENCY ENGINE CUT. THE DRONE WILL FALL!!!
+    void CUT_THE_MOTORS();
+
     /// Instruct the drone to move to a position relative to it's current position.
     /// @param dx displacement in meters to the right (positive) or left (negative)
     /// @param dy displacement in meters forward (positive) or backwards (negative)
-    /// @param dz displacement in meters down (positive) or up (negative)
     /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
     /// Positive numbers are clockwise rotation.
+    /// @param wait when true the call blocks until the move is done
     /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
-    bool moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
+    bool moveRelativeMetres(float dx, float dy, float heading = 0.0f, bool wait = true);
+
+#ifndef RESTRICTED_ALTITUDE
+    /// THIS FUNCTION IS NOT AVAILBLE TO HACKATHON CONTESTANTS
+
+    /// Instruct the drone to move to a position relative to it's current position.
+    /// @param dx displacement in meters to the right (positive) or left (negative)
+    /// @param dy displacement in meters forward (positive) or backwards (negative)
+    /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
+    /// Positive numbers are clockwise rotation.
+    /// @param wait when true the call blocks until the move is done
+    /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
+    bool moveRelativeMetresRestricted(float dx, float dy, float dz, float heading = 0.0f, bool wait = true);
+#endif
     
     /// Instruct the drone to move in the specified direction
     /// @param direction direction to move the drone, will move MOVEMENT_STEP distance
@@ -103,6 +118,7 @@ public:
     /// Set the flying state of the drone. NOTE: this is typically called within a callback when the drone
     /// state changes.
     /// @param state the flying state of the drone
+    /// @param debug when true, verbose debug messages are printed
     void setFlyingState(int state, bool debug = false);
 
     /// Call this function to notify the Pilot class that a Move has been completed. Typically called from
@@ -116,6 +132,17 @@ private:
     Semaphore moveSem;  ///< A semaphore to sync move events between this thread and the callback thread
     ARCONTROLLER_Device_t *m_deviceController = nullptr; ///< smart pointer to DeviceController instance
     FlyingState m_flyingState = FlyingState::LANDED; ///< current flying state of the drone
+    float m_initialFlightAltitude = 0.0f; ///< initial altitude after takeoff
+
+    /// Instruct the drone to move to a position relative to it's current position.
+    /// @param dx displacement in meters to the right (positive) or left (negative)
+    /// @param dy displacement in meters forward (positive) or backwards (negative)
+    /// @param dz displacement in meters down (positive) or up (negative)
+    /// @param heading desired orientation of the drone in degrees, 0 is the current drone heading.
+    /// @param wait when true the call blocks until the move is done
+    /// Positive numbers are clockwise rotation.
+    /// @returns true when the movement is completed, false if a timeout occurs when waiting for the completion event
+    bool m_moveRelativeMetres(float dx, float dy, float dz, float heading = 0.0, bool wait = true);
 
 };
 
