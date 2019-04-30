@@ -19,11 +19,16 @@
 #include "VideoDriver.h"
 #include "VideoFrame.h"
 // #include "wscDrone.h"
+// #include "../inc/gilHandler.hpp"
 
 using VideoFrameGeneric = PyFrame; //IS THIS OK STEVE??
 
-
-class PyBebop {
+#ifdef GIL_HANDLER
+class PyBebop : public gil_guard 
+#else
+class PyBebop 
+#endif
+{
 public:
     /* TODO what does setting = delete do? */
 
@@ -34,11 +39,14 @@ public:
     /// Default destructor
     ~PyBebop() {}
 
+    /// Thread Mgmt by GIL
+    // gil_guard gil(gil_guard::no_acquire_t);
     /// Drone Movement Control commands
     void takeoffDrone();
     void moveRelativeMetres(float x, float y);
     void landDrone();
     void stopDrone();
+    void killDrone();
 
     char * getFrameBuffer();
 
@@ -54,7 +62,7 @@ private:
     // std::shared_ptr<wscDrone::Pilot>              m_pilot           = nullptr; ///< shared pointer to Pilot class
     // std::shared_ptr<wscDrone::VideoDriver>        m_video           = nullptr; ///< shared pointer to VideoDriver class
     std::shared_ptr<VideoFrameGeneric> m_frame = nullptr; ///< shared pointer to VideoDriver class
-    std::shared_ptr<Bebop2>  m_drone = nullptr; ///< shared pointer to Bebop2 class
+    std::shared_ptr<wscDrone::Bebop2>  m_drone = nullptr; ///< shared pointer to Bebop2 class
 
 
     void initDrone();

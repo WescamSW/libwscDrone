@@ -55,7 +55,7 @@ public:
   {
     // For Python 3.4+, one can use `PyGILState_Check()`.
 #ifdef PY_MAJOR_VERSION > 3 && PY_MINOR_VERSION > 4
-    return PyGilState_Check();
+    return PyGILState_Check(); 
 #else
     return _PyThreadState_Current == PyGILState_GetThisThreadState();
 #endif
