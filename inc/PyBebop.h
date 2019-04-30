@@ -54,7 +54,7 @@ private:
     // std::shared_ptr<wscDrone::Pilot>              m_pilot           = nullptr; ///< shared pointer to Pilot class
     // std::shared_ptr<wscDrone::VideoDriver>        m_video           = nullptr; ///< shared pointer to VideoDriver class
     std::shared_ptr<VideoFrameGeneric> m_frame = nullptr; ///< shared pointer to VideoDriver class
-    std::shared_ptr<wscDrone::Bebop2>  m_drone = nullptr; ///< shared pointer to Bebop2 class
+    std::shared_ptr<Bebop2>  m_drone = nullptr; ///< shared pointer to Bebop2 class
 
 
     void initDrone();
