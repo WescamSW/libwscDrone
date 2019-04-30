@@ -83,16 +83,10 @@ LDFLAGS      += -shared -fPIC
 
 #for FFMPEG
 SYS_DYN_LIBS_LIST += avformat avcodec avutil swscale
-<<<<<<< HEAD
 # for Bebop2 SDK
 SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
 SYS_DYN_LIBS_LIST = arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
 SYS_STAT_LIBS_LIST += 
-=======
-#for Boost
-SYS_DYN_LIBS_LIST += boost_python3
-SYS_STAT_LIBS_LIST =
->>>>>>> cfd63bb... Added PyFrame support
 
 API_HEADER_LIST = Bebop2 \
                   DroneDiscovery \

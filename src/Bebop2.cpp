@@ -20,13 +20,15 @@ namespace wscDrone {
 
 const std::string BEBOP_IP_ADDRESS = "192.168.42.1";
 
+#define ONE_HEIGHT 1
+
 Bebop2::Bebop2(string ipAddress, std::shared_ptr<VideoFrame> frame)
 {
     m_callsign = Callsign::LONE_WOLF;
     m_ipAddress = ipAddress;
     m_droneDiscovery  = std::make_shared<DroneDiscovery>(m_ipAddress);
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
-    m_pilot           = std::make_shared<Pilot>(m_droneController, 1.0f); // initial height = 1.0 meteres
+    m_pilot           = std::make_shared<Pilot>(m_droneController, ONE_HEIGHT);
     m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
     m_camera          = std::make_shared<CameraControl>(m_droneController, m_video);
 
@@ -61,7 +63,7 @@ Bebop2::Bebop2(Callsign callsign, std::shared_ptr<VideoFrame> frame)
     m_ipAddress = ipAddress;
     m_droneDiscovery  = std::make_shared<DroneDiscovery>(m_ipAddress);
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
-    m_pilot           = std::make_shared<Pilot>(m_droneController, initialFlightAltitude);
+    m_pilot           = std::make_shared<Pilot>(m_droneController, ONE_HEIGHT);
     m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
     m_camera          = std::make_shared<CameraControl>(m_droneController, m_video);
 
