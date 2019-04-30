@@ -76,7 +76,7 @@ DEFAULTFLAGS   = -O3 -D NDEBUG
 #COMMON_FLAGS += -pedantic -Wall -Wextra -Wno-deprecated-declarations
 COMMON_FLAGS += -Wno-deprecated-declarations
 # shared library flags
-COMMON_FLAGS += -shared -fPIC
+COMMON_FLAGS += -shared -fPIC -DRESTRICTED_ALTITUDE
 CPPFLAGS     += -I$(LOCAL_INCDIR) -I$(API_INCDIR) $(SYS_INC_DIRS)
 CXXFLAGS     += -std=c++14 $(COMMON_FLAGS)
 LDFLAGS      += -shared -fPIC
