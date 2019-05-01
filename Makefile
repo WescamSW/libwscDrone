@@ -116,6 +116,8 @@ CPP_SRC_LIST = Bebop2 \
                VideoDriver \
                Utils
 #Extra Library Source Files For The Generic API IF
+CPP_EXTRAS_GENAPI_HEADER_LIST = Bebop2CtrlIF \
+                             Bebop2FrameIF
 CPP_EXTRAS_GENAPI_SRC_LIST = Bebop2CtrlIF \
                              Bebop2FrameIF
 #Extra Library Source Files For The Generic API IF
@@ -129,6 +131,8 @@ endif
 SYS_DYN_LIBS  = -L$(DIST_LIBDIR) $(SYS_LIBS_DIRS) $(addprefix -l, $(SYS_DYN_LIBS_LIST))
 SYS_STAT_LIBS = -L$(DIST_LIBDIR) $(SYS_LIBS_DIRS) $(addprefix -l, $(SYS_STAT_LIBS_LIST))
 API_HEADERS = $(addsuffix .h, $(addprefix $(API_INCDIR), $(API_HEADER_LIST)))
+EXTRA_GENAPI_HEADERS = $(addsuffix .h, $(addprefix $(EXTRAS_GENAPI_INCDIR), $(CPP_EXTRAS_GENAPI_HEADER_LIST)))
+# CPP_EXTRAS_PYBINDINGS_HEADER_LIST = $(addsuffix .h, $(addprefix $(EXTRAS_PYBINDINGS_INCDIR), $(CPP_EXTRAS_PYBINDINGS_HEADER_LIST)))
 #LOCAL_HEADERS += $(addsuffix .h, $(addprefix $(LOCAL_INCDIR), $(H_SRC_LIST)))
 SOURCES_C   = $(addsuffix .c, $(addprefix $(SRCDIR), $(C_SRC_LIST)))
 SOURCES_CPP = $(addsuffix .cpp, $(addprefix $(SRCDIR), $(CPP_SRC_LIST)))
@@ -140,7 +144,7 @@ OBJECTS_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_SRC_LIST)))
 OBJECTS_EXTRAS_GENAPI_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_EXTRAS_GENAPI_SRC_LIST)))
 # OBJECTS_EXTRAS_PYBINDINGS_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_EXTRAS_PYBINDINGS_SRC_LIST)))
 
-all: directories api_headers $(DYN_TARGET) $(STATIC_TARGET)
+all: directories api_headers extra_headers $(DYN_TARGET) $(STATIC_TARGET)
 
 directories:
 	$(MKDIR_P) $(OUTPUT_DIRS)
@@ -153,6 +157,9 @@ symlinks:
 api_headers:
 	cp -f $(API_INCDIR)/$(TARGET_NAME).h $(DIST_INCDIR)
 	cp -f $(API_HEADERS) $(DIST_INCDIR)/$(TARGET_NAME)
+
+extra_headers:
+	cp -f $(EXTRA_GENAPI_HEADERS) $(DIST_INCDIR)/$(TARGET_NAME)
 
 $(DYN_TARGET): $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_EXTRAS_GENAPI_CPP) # $(OBJECTS_EXTRAS_PYBINDINGS_CPP)
 	$(CXX) $(LDFLAGS) -o $(DYN_TARGET) $(OBJECTS_C) $(OBJECTS_CPP) -Wl,-Bstatic $(SYS_STAT_LIBS) -Wl,-Bdynamic $(SYS_DYN_LIBS)

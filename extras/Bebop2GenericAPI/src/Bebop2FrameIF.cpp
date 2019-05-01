@@ -1,5 +1,5 @@
 /*
- * PyFrame.cpp
+ * Bebop2FrameIF.cpp
  *
  *  Created on: Apr 28, 2019
  *      Author: Eric Dyer
@@ -8,9 +8,9 @@
  *  and provide a generic buffer pointer to that data
  */
 
-#include "PyFrame.h"
+#include "Bebop2FrameIF.h"
 
-PyFrame::PyFrame(unsigned height, unsigned width)
+Bebop2FrameIF::Bebop2FrameIF(unsigned height, unsigned width)
 : VideoFrame(height, width)
 {
     // m_frame = std::make_shared<cv::Mat>(height,width,CV_8UC3);
@@ -21,21 +21,21 @@ PyFrame::PyFrame(unsigned height, unsigned width)
     m_frame  = new char[FRAMESIZE];
 }
 
-char *PyFrame::getRawPointer()
+char *Bebop2FrameIF::getRawPointer()
 {
     return reinterpret_cast<char *>(m_frame);
 }
 
-size_t PyFrame::getFrameSizeBytes()
+size_t Bebop2FrameIF::getFrameSizeBytes()
 {
     return m_width * m_height * 3;
 }
 
-unsigned PyFrame::getHeight() {
+unsigned Bebop2FrameIF::getHeight() {
     return m_height;
 }
 
-unsigned PyFrame::getWidth() {
+unsigned Bebop2FrameIF::getWidth() {
     return m_width;
 }
 

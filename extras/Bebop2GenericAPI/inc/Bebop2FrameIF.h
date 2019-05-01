@@ -1,5 +1,5 @@
 /*
- * PyFrame.h
+ * Bebop2FrameIF.h
  *
  *  Created on: Apr 28, 2019
  *      Author: Eric Dyer
@@ -13,12 +13,12 @@
 // #include <opencv2/core.hpp>
 #include "VideoFrame.h"
 
-class PyFrame : public VideoFrame {
+class Bebop2FrameIF : public VideoFrame {
 public:
-    PyFrame() = delete;
-    PyFrame(unsigned height, unsigned width);
-    PyFrame(unsigned height, unsigned width, const uint8_t * frame);
-    ~PyFrame() {}
+    Bebop2FrameIF() = delete;
+    Bebop2FrameIF(unsigned height, unsigned width);
+    Bebop2FrameIF(unsigned height, unsigned width, const uint8_t * frame);
+    ~Bebop2FrameIF() {}
 
     unsigned getHeight() override;
     unsigned getWidth() override;

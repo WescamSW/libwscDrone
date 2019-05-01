@@ -12,7 +12,7 @@
 #include "DroneController.h"
 #include "CameraControl.h"
 #include "Pilot.h"
-#include "PyFrame.h"
+#include "Bebop2FrameIF.h"
 #include "Semaphore.h"
 #include "Utils.h"
 #include "VideoDecoder.h"
@@ -21,12 +21,12 @@
 // #include "wscDrone.h"
 // #include "../inc/gilHandler.hpp"
 
-using VideoFrameGeneric = PyFrame; //IS THIS OK STEVE??
+using VideoFrameGeneric = Bebop2FrameIF; //IS THIS OK STEVE??
 
 #ifdef GIL_HANDLER
-class PyBebop : public gil_guard 
+class Bebop2CtrlIF : public gil_guard 
 #else
-class PyBebop 
+class Bebop2CtrlIF 
 #endif
 {
 public:
@@ -34,10 +34,10 @@ public:
 
     /// Construct a number of Bebop 2 drone instances
     /// @param numDroneInstances number of drone instances to create (valid range 1-3)
-    PyBebop(int callSign);
+    Bebop2CtrlIF(int callSign);
 
     /// Default destructor
-    ~PyBebop() {}
+    ~Bebop2CtrlIF() {}
 
     /// Thread Mgmt by GIL
     // gil_guard gil(gil_guard::no_acquire_t);
