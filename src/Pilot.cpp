@@ -186,13 +186,6 @@ bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bo
 {
     bool timedOut = true;
 
-    printf("vect before: %3.3f %2.3f, %2.3f\n", rotation, homeVector[X],homeVector[Y]);
-    // should we do anything different on time out?
-    rotateHome(homeVector, rotation, heading);  // perform rotations first
-    translateHome(homeVector, rotation, dx, dy);
-    printf("vect after: %3.3f %2.3f, %2.3f\n", rotation, homeVector[X], homeVector[Y]);
-
-    /*
     m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degreesToRadians(heading)); // not implemented in the SDK yet
     if (wait) {
         timedOut = waitMoveComplete();
@@ -201,7 +194,6 @@ bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bo
     while (m_flyingState != FlyingState::HOVERING) {
     	waitMilliseconds(5);
     }
-    */
 
     // Return true on success, false on timeout.
     return !timedOut;
