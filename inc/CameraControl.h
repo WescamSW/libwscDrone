@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #include "DroneController.h"
+#include "VideoDriver.h"
 
 namespace wscDrone {
 
@@ -56,7 +57,7 @@ public:
     /// Construct a CameraControl instance for the provided droneController
     /// @param droneController a smart pointer to an  instance of DroneController
     /// @param photoType Specifies what type of photos to provide
-    CameraControl(std::shared_ptr<DroneController> droneController);
+    CameraControl(std::shared_ptr<DroneController> droneController, std::shared_ptr<VideoDriver> videoDriver);
 
     // Default destructor
     ~CameraControl() {};
@@ -93,6 +94,8 @@ private:
     PhotoType m_photoType = PhotoType::JPEG_4_3;
     CameraState m_cameraState;
     bool m_photoInProgress = false;
+    std::shared_ptr<VideoDriver> m_videoDriver = nullptr;
+    unsigned m_outstandingPhotos = 0;
 
     void m_notifyPhotoComplete();
     bool m_waitPhotoComplete();

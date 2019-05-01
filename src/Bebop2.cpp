@@ -26,9 +26,9 @@ Bebop2::Bebop2(string ipAddress, std::shared_ptr<VideoFrame> frame)
     m_ipAddress = ipAddress;
     m_droneDiscovery  = std::make_shared<DroneDiscovery>(m_ipAddress);
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
-    m_camera          = std::make_shared<CameraControl>(m_droneController);
     m_pilot           = std::make_shared<Pilot>(m_droneController, 1.0f); // initial height = 1.0 meteres
     m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
+    m_camera          = std::make_shared<CameraControl>(m_droneController, m_video);
 
     m_droneController->registerCommandReceivedCallback(m_onCommandReceivedDefault, this);
 }
@@ -61,9 +61,9 @@ Bebop2::Bebop2(Callsign callsign, std::shared_ptr<VideoFrame> frame)
     m_ipAddress = ipAddress;
     m_droneDiscovery  = std::make_shared<DroneDiscovery>(m_ipAddress);
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
-    m_camera          = std::make_shared<CameraControl>(m_droneController);
     m_pilot           = std::make_shared<Pilot>(m_droneController, initialFlightAltitude);
     m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
+    m_camera          = std::make_shared<CameraControl>(m_droneController, m_video);
 
     m_droneController->registerCommandReceivedCallback(m_onCommandReceivedDefault, this);
 }
@@ -113,7 +113,7 @@ void Bebop2::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey,
                             static_cast<eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE>(arg->value.I32);
                     CameraState cameraState = static_cast<CameraState>(state);
                     drone->getCameraControl()->setCameraState(cameraState);
-                    cout << "Camerastate: " << state << endl;
+                    cout << "CameraState: " << state << endl;
                 }
 
 //                HASH_FIND_STR (element->arguments, ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR, arg);
@@ -121,6 +121,29 @@ void Bebop2::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey,
 //                {
 //                    eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR error = arg->value.I32;
 //                }
+            }
+        }
+
+        // Video state change
+        if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2) && (elementDictionary != NULL))
+        {
+            ARCONTROLLER_DICTIONARY_ARG_t *arg = NULL;
+            ARCONTROLLER_DICTIONARY_ELEMENT_t *element = NULL;
+            HASH_FIND_STR (elementDictionary, ARCONTROLLER_DICTIONARY_SINGLE_KEY, element);
+
+            cout << "VIDEO STATE CHANGE!" << endl;
+
+            if (element != NULL)
+            {
+                HASH_FIND_STR (element->arguments, ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE, arg);
+                if (arg != NULL)
+                {
+                    eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE state =
+                            static_cast<eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_VIDEOSTATECHANGEDV2_STATE>(arg->value.I32);
+                    VideoState videoState = static_cast<VideoState>(state);
+                    drone->getVideoDriver()->setVideoState(videoState);
+                    cout << "VideoState: " << state << endl;
+                }
             }
         }
 
