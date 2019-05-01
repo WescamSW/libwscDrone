@@ -54,21 +54,10 @@ PyBebop::PyBebop(int callSign)
 
     startDrone();
 
-    // count[0] = 0;
-    // count[1] = 0;
 }
 
-// void PyBebop::changeCount(int idx, int value)
-// {
-//     count[idx]  = value;
-
-//     printf("Changed %d: %d\n", idx, count[idx]);
-// }
-
-void PyBebop::testFoo()
-{
-    cout << "testFoo" << endl;
-    wscDrone::waitSeconds(1);
+unsigned PyBebop::getBatteryLevel() {
+    return m_drone->getBatteryLevel();
 }
 
 void PyBebop::takeoffDrone() {
@@ -78,9 +67,6 @@ void PyBebop::takeoffDrone() {
 #endif
     cout << "Taking off" << endl;
     m_drone->getPilot()->takeOff();
-    // wscDrone::waitSeconds(3);
-    // setFlightAltitude();
-    // #error nice
 #ifdef GIL_HANDLER
     restore();
 #endif
@@ -95,7 +81,6 @@ void PyBebop::landDrone()
 
     m_drone->getCameraControl()->setForward();
     m_drone->getPilot()->land();
-    // wscDrone::waitSeconds(5);
 #ifdef GIL_HANDLER
     restore();
 #endif
@@ -139,13 +124,11 @@ void PyBebop::startDrone()
     cout << "Done VIDEO START" << endl;
     m_drone->getCameraControl()->setForward();
     wscDrone::waitSeconds(1);
-    cout << "Done drone start" << endl;
+    cout << "Done CAMERA start" << endl;
 }
 
 char * PyBebop::getFrameBuffer()
 {
-    // char test[5];
-    // return test;
     return m_frame->getRawPointer();
 }
 
@@ -185,6 +168,7 @@ PyObject* getFrameBuffer_wrap(PyBebop& self)
 
 using namespace boost::python;
 
+
 BOOST_PYTHON_MODULE(libwscDrone)
 {
     class_<PyBebop>("PyBebop", init<int>())
@@ -208,6 +192,12 @@ extern "C"
     PyBebop* CppPyIF(int callSign) { return new PyBebop(callSign); }
     void CppPyIF_takeoffDrone(PyBebop *PyBebop_IF) { PyBebop_IF->takeoffDrone(); }
     void CppPyIF_killDrone(PyBebop *PyBebop_IF) { PyBebop_IF->killDrone(); }
+    int CppPyIF_getBatteryLevel(PyBebop *PyIF) { return PyIF->getBatteryLevel(); }
+    char *CppPyIF_getBuff(PyBebop *PyIF) { return PyIF->getFrameBuffer(); }
+    void CppPyIF_moveRelativeMetres(PyBebop *PyIF, float x, float y) { 
+        PyIF->moveRelativeMetres(x, y); 
+    }
+    void CppPyIF_landDrone(PyBebop *PyIF) { PyIF->landDrone(); } 
 }
 
 #endif
