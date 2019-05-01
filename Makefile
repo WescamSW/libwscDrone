@@ -4,7 +4,6 @@ LIB_MINOR_VER = 0
 LIB_PATCH_VER = 0
 LIB_VER = $(LIB_MAJOR_VER).$(LIB_MINOR_VER).$(LIB_PATCH_VER)
 
-
 # Check for environment variables.
 ifndef SHELL
 SHELL = /usr/bin/sh
@@ -54,11 +53,16 @@ MKDIR_P = mkdir -p
 
 TARGET_NAME = wscDrone
 
-LOCAL_INCDIR = $(CURDIR)/src/
+# LOCAL_INCDIR = $(CURDIR)/src/
+LOCAL_INCDIR = $(CURDIR)/inc/
 API_INCDIR = $(CURDIR)/inc/
+EXTRAS_GENAPI_INCDIR = $(CURDIR)/extras/Bebop2GenericAPI/inc/
+EXTRAS_PYBINDINGS_INCDIR  = $(CURDIR)/extras/PythonBindings/inc/
 OUTPUT_DIRS = $(CURDIR)/obj/ $(CURDIR)/dist/lib $(CURDIR)/dist/include/$(TARGET_NAME)
 SRCDIR = $(CURDIR)/src/
 OBJDIR = $(CURDIR)/obj/
+EXTRAS_GENAPI_SRCDIR = $(CURDIR)/extras/Bebop2GenericAPI/src/
+EXTRAS_PYBINDINGS_SRCDIR = $(CURDIR)/extras/PythonBindings/src/
 
 SYS_INC_DIRS  = -I=/usr/local/include -I$(ARSDK3)/include -I /usr/include/python3.6
 SYS_LIBS_DIRS = -L=/usr/local/lib -L$(ARSDK3)/lib -L/usr/bin/python3.6
@@ -77,11 +81,10 @@ DEFAULTFLAGS   = -O3 -D NDEBUG
 COMMON_FLAGS += -Wno-deprecated-declarations
 # shared library flags
 COMMON_FLAGS += -shared -fPIC
-CPPFLAGS     += -I$(LOCAL_INCDIR) -I$(API_INCDIR) $(SYS_INC_DIRS)
+CPPFLAGS     += -I$(LOCAL_INCDIR) -I$(API_INCDIR) $(SYS_INC_DIRS) -I$(EXTRAS_GENAPI_INCDIR)\
+                -I$(EXTRAS_PYBINDINGS_INCDIR)
 CXXFLAGS     += -std=c++14 $(COMMON_FLAGS)
 LDFLAGS      += -shared -fPIC
-
-
 
 # for Bebop2 SDK
 SYS_DYN_LIBS_LIST += arsal arcommands ardiscovery arcontroller armedia arnetwork arnetworkal arstream arstream2
@@ -97,37 +100,45 @@ API_HEADER_LIST = Bebop2 \
                   DroneController \
                   CameraControl \
                   Pilot \
-                  PyBebop \
-                  PyFrame \
                   VideoDecoder \
                   VideoDriver \
                   Utils \
                   Semaphore \
                   VideoFrame
 
+#Primary Library Source Files
 CPP_SRC_LIST = Bebop2 \
                DroneDiscovery \
                DroneController \
                CameraControl \
                Pilot \
-               PyBebop \
-               PyFrame \
                VideoDecoder \
                VideoDriver \
                Utils
-
+#Extra Library Source Files For The Generic API IF
+CPP_EXTRAS_GENAPI_SRC_LIST = Bebop2CtrlIF \
+                             Bebop2FrameIF
+#Extra Library Source Files For The Generic API IF
+ifdef USE_BOOST
+CPP_EXTRAS_PYBINDINGS_SRC_LIST = PyBebop2BoostIF
+else
+# CPP_EXTRAS_PYBINDINGS_SRC_LIST = PyBebop2CTypesIF
+endif
 
 #Prepend the path
 SYS_DYN_LIBS  = -L$(DIST_LIBDIR) $(SYS_LIBS_DIRS) $(addprefix -l, $(SYS_DYN_LIBS_LIST))
 SYS_STAT_LIBS = -L$(DIST_LIBDIR) $(SYS_LIBS_DIRS) $(addprefix -l, $(SYS_STAT_LIBS_LIST))
 API_HEADERS = $(addsuffix .h, $(addprefix $(API_INCDIR), $(API_HEADER_LIST)))
 #LOCAL_HEADERS += $(addsuffix .h, $(addprefix $(LOCAL_INCDIR), $(H_SRC_LIST)))
-SOURCES_CPP = $(addsuffix .cpp, $(addprefix $(SRCDIR), $(CPP_SRC_LIST)))
 SOURCES_C   = $(addsuffix .c, $(addprefix $(SRCDIR), $(C_SRC_LIST)))
+SOURCES_CPP = $(addsuffix .cpp, $(addprefix $(SRCDIR), $(CPP_SRC_LIST)))
+SOURCES_EXTRAS_GENAPI_CPP = $(addsuffix .cpp, $(addprefix $(EXTRAS_GENAPI_SRCDIR), $(CPP_EXTRAS_GENAPI_SRC_LIST)))
+# SOURCES_EXTRAS_PYBINDINGS_CPP = $(addsuffix .cpp, $(addprefix $(EXTRAS_PYBINDINGS_SRCDIR), $(CPP_EXTRAS_PYBINDINGS_SRC_LIST)))
 
-OBJECTS_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_SRC_LIST)))
 OBJECTS_C   = $(addsuffix .o, $(addprefix $(OBJDIR), $(C_SRC_LIST)))
-
+OBJECTS_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_SRC_LIST)))
+OBJECTS_EXTRAS_GENAPI_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_EXTRAS_GENAPI_SRC_LIST)))
+# OBJECTS_EXTRAS_PYBINDINGS_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_EXTRAS_PYBINDINGS_SRC_LIST)))
 
 all: directories api_headers $(DYN_TARGET) $(STATIC_TARGET)
 
@@ -143,19 +154,25 @@ api_headers:
 	cp -f $(API_INCDIR)/$(TARGET_NAME).h $(DIST_INCDIR)
 	cp -f $(API_HEADERS) $(DIST_INCDIR)/$(TARGET_NAME)
 
-$(DYN_TARGET): $(OBJECTS_C) $(OBJECTS_CPP)
+$(DYN_TARGET): $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_EXTRAS_GENAPI_CPP) # $(OBJECTS_EXTRAS_PYBINDINGS_CPP)
 	$(CXX) $(LDFLAGS) -o $(DYN_TARGET) $(OBJECTS_C) $(OBJECTS_CPP) -Wl,-Bstatic $(SYS_STAT_LIBS) -Wl,-Bdynamic $(SYS_DYN_LIBS)
 	ln -f -s lib$(TARGET_NAME).so.$(LIB_VER) $(DIST_LIBDIR)/lib$(TARGET_NAME).so
 	ln -f -s lib$(TARGET_NAME).so.$(LIB_VER) $(DIST_LIBDIR)/lib$(TARGET_NAME).so.$(LIB_MAJOR_VER)
 	ln -f -s lib$(TARGET_NAME).so.$(LIB_VER) $(DIST_LIBDIR)/lib$(TARGET_NAME).so.$(LIB_MAJOR_VER).$(LIB_MINOR_VER)
 
-$(STATIC_TARGET): $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_CU)
-	$(AR) $(ARFLAGS) $(STATIC_TARGET) $(OBJECTS_C) $(OBJECTS_CPP)
+$(STATIC_TARGET): $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_CU) $(OBJECTS_EXTRAS_GENAPI_CPP) #$(OBJECTS_EXTRAS_PYBINDINGS_CPP)
+	$(AR) $(ARFLAGS) $(STATIC_TARGET) $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_EXTRAS_GENAPI_CPP) 
 
 printvar:
 	$(foreach v, $(.VARIABLES), $(info $(v) = $($(v))))
 
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DEFAULTFLAGS) -c -o $@ $<
+
+$(OBJDIR)%.o: $(EXTRAS_GENAPI_SRCDIR)%.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DEFAULTFLAGS) -c -o $@ $<
+
+$(OBJDIR)%.o: $(EXTRAS_PYBINDINGS_SRCDIR)%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DEFAULTFLAGS) -c -o $@ $<
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
@@ -166,10 +183,7 @@ install: all
 	cp -a $(DIST_INCDIR)/* $(DESTDIR)/$(PREFIX)/include/
 
 clean:
-	-rm -f $(OBJECTS_C) $(OBJECTS_CPP)
-
+	-rm -f $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_EXTRAS_GENAPI_CPP) 
 distclean: clean
 	-rm -rf $(DIST_DIR)
 	-rm -rf $(OBJDIR)
-
-
