@@ -47,6 +47,7 @@ public:
     void landDrone();
     void stopDrone();
     void killDrone();
+    unsigned getBatteryLevel();
 
     char * getFrameBuffer();
 
