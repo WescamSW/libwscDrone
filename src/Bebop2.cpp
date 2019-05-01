@@ -11,9 +11,9 @@
 using namespace std;
 
 // Set the default flight altitudes for the drones
-constexpr float ALPHA_FLIGHT_ALTITUDE     = 1.0f;
-constexpr float BRAVO_FLIGHT_ALTITUDE     = 1.0f;
-constexpr float CHARLIE_FLIGHT_ALTITUDE   = 1.0f;
+constexpr float ALPHA_FLIGHT_ALTITUDE     = 1.5f;
+constexpr float BRAVO_FLIGHT_ALTITUDE     = 3.0f;
+constexpr float CHARLIE_FLIGHT_ALTITUDE   = 4.0f;
 constexpr float LONE_WOLF_FLIGHT_ALTITUDE = 1.0f;
 
 namespace wscDrone {
@@ -26,7 +26,7 @@ Bebop2::Bebop2(string ipAddress, std::shared_ptr<VideoFrame> frame)
     m_ipAddress = ipAddress;
     m_droneDiscovery  = std::make_shared<DroneDiscovery>(m_ipAddress);
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
-    m_camera          = std::make_shared<CameraControl>(m_droneController, PhotoType::RAW);
+    m_camera          = std::make_shared<CameraControl>(m_droneController);
     m_pilot           = std::make_shared<Pilot>(m_droneController, 1.0f); // initial height = 1.0 meteres
     m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
 
@@ -36,37 +36,32 @@ Bebop2::Bebop2(string ipAddress, std::shared_ptr<VideoFrame> frame)
 Bebop2::Bebop2(Callsign callsign, std::shared_ptr<VideoFrame> frame)
 {
     m_callsign = callsign;
-    PhotoType photoType;
     float initialFlightAltitude;
 
     std::string ipAddress;
     switch (callsign) {
     case Callsign::ALPHA :
         ipAddress = "192.168.1.101";
-        photoType = PhotoType::RAW;
         initialFlightAltitude = ALPHA_FLIGHT_ALTITUDE;
         break;
     case Callsign::BRAVO :
         ipAddress = "192.168.1.102";
-        photoType = PhotoType::JPEG;
         initialFlightAltitude = BRAVO_FLIGHT_ALTITUDE;
         break;
     case Callsign::CHARLIE :
         ipAddress = "192.168.1.103";
-        photoType = PhotoType::RAW;
         initialFlightAltitude = CHARLIE_FLIGHT_ALTITUDE;
         break;
     case Callsign::LONE_WOLF :
     default :
         ipAddress = BEBOP_IP_ADDRESS;
-        photoType = PhotoType::RAW;
         initialFlightAltitude = LONE_WOLF_FLIGHT_ALTITUDE;
         break;
     }
     m_ipAddress = ipAddress;
     m_droneDiscovery  = std::make_shared<DroneDiscovery>(m_ipAddress);
     m_droneController = std::make_shared<DroneController>(m_droneDiscovery);
-    m_camera          = std::make_shared<CameraControl>(m_droneController, photoType);
+    m_camera          = std::make_shared<CameraControl>(m_droneController);
     m_pilot           = std::make_shared<Pilot>(m_droneController, initialFlightAltitude);
     m_video           = std::make_shared<VideoDriver>(m_droneController, frame);
 
@@ -102,12 +97,32 @@ void Bebop2::m_onCommandReceivedDefault(eARCONTROLLER_DICTIONARY_KEY commandKey,
             }
         }
 
-        // Camera orientation changed
-//        if (commandKey == ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_CAMERASTATE_ORIENTATIONV2)
-//        {
-//            cout << "Camera orientation done" << endl;
-//            drone->getCameraControl()->notifyCameraChange();
-//        }
+        // Photo picture taken
+        if ((commandKey == ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2) && (elementDictionary != NULL))
+        {
+            ARCONTROLLER_DICTIONARY_ARG_t *arg = NULL;
+            ARCONTROLLER_DICTIONARY_ELEMENT_t *element = NULL;
+            HASH_FIND_STR (elementDictionary, ARCONTROLLER_DICTIONARY_SINGLE_KEY, element);
+
+            if (element != NULL)
+            {
+                HASH_FIND_STR (element->arguments, ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE, arg);
+                if (arg != NULL)
+                {
+                    eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE state =
+                            static_cast<eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_STATE>(arg->value.I32);
+                    CameraState cameraState = static_cast<CameraState>(state);
+                    drone->getCameraControl()->setCameraState(cameraState);
+                    cout << "Camerastate: " << state << endl;
+                }
+
+//                HASH_FIND_STR (element->arguments, ARCONTROLLER_DICTIONARY_KEY_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR, arg);
+//                if (arg != NULL)
+//                {
+//                    eARCOMMANDS_ARDRONE3_MEDIARECORDSTATE_PICTURESTATECHANGEDV2_ERROR error = arg->value.I32;
+//                }
+            }
+        }
 
 
         // Print camera settings
