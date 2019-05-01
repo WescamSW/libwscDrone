@@ -130,6 +130,9 @@ public:
     bool waitMoveComplete();
 
     void goHome();
+    float getRotation();
+    float getTranslationX();
+    float getTranslationY();
 
 private:
     Semaphore moveSem;  ///< A semaphore to sync move events between this thread and the callback thread
@@ -158,10 +161,6 @@ private:
     // expressed in the rotated (drone) frame which are converted to the home
     // frame, then added to the home x and y. x is forward for the drone.
     void translateHome(std::vector<float> &homeVector, float rotation, float dx, float dy);
-
-    float getRotation();
-    float getTranslationX();
-    float getTranslationY();
 
 };
 

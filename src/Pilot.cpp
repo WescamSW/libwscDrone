@@ -95,11 +95,12 @@ void Pilot::rotateHome(std::vector<float> &homeVector, float &rotation, float an
 
 void Pilot::translateHome(std::vector<float> &homeVector, float rotation, float dx, float dy)
 {
+    if (dx || dy) {
+        float angle_rads = degreesToRadians(rotation);
 
-    float angle_rads = degreesToRadians(rotation);
-
-    homeVector[X] += dx * cos(angle_rads) + dy * sin(angle_rads);
-    homeVector[Y] += dx * sin(angle_rads) + dy * cos(angle_rads);
+        homeVector[X] += dx * cos(angle_rads) + dy * sin(angle_rads);
+        homeVector[Y] += dx * sin(angle_rads) + dy * cos(angle_rads);
+    }
 }
 
 float Pilot::getRotation()
@@ -117,11 +118,8 @@ float Pilot::getTranslationY()
 
 void Pilot::goHome()
 {
-    float dx = -homeVector[X];
-    float dy = -homeVector[Y];
-
     m_moveRelativeMetres(0.0f, 0.0f, 0.0f, -rotation);
-    m_moveRelativeMetres(dx, dy, 0.0f);
+    m_moveRelativeMetres(-homeVector[X], -homeVector[Y], 0.0f);
 }
 
 void Pilot::takeOff()
