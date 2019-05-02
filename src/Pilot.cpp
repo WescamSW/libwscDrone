@@ -184,6 +184,9 @@ bool Pilot::m_moveRelativeMetres(float dx, float dy, float dz, float heading, bo
 {
     bool timedOut = true;
 
+    // should we do anything different on time out?
+    rotateHome(homeVector, rotation, heading);  // perform rotations first
+    translateHome(homeVector, rotation, dx, dy);
     m_deviceController->aRDrone3->sendPilotingMoveBy(m_deviceController->aRDrone3, dx, dy, dz, degreesToRadians(heading)); // not implemented in the SDK yet
     if (wait) {
         timedOut = waitMoveComplete();
