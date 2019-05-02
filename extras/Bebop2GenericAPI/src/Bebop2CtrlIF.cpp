@@ -111,6 +111,38 @@ void Bebop2CtrlIF::stopDrone()
 #endif
 }
 
+void Bebop2CtrlIF::moveRelativeMetres(float x, float y)
+{
+    m_drone->getPilot()->moveRelativeMetres(x, y, 0);
+}
+
+
+void Bebop2CtrlIF::moveDirection(MoveDirection dir)
+{
+    m_drone->getPilot()->moveDirection(dir);
+}
+
+void Bebop2CtrlIF::setHeading(float heading)
+{
+    m_drone->getPilot()->setHeading(heading);
+}
+
+//Camera Functions
+void Bebop2CtrlIF::capturePhoto()
+{
+    m_drone->getCameraControl()->capturePhoto();
+}
+
+void Bebop2CtrlIF::setForward()
+{
+    m_drone->getCameraControl()->setForward();
+}
+
+void Bebop2CtrlIF::setTiltPan(float tilt, float pan)
+{
+    m_drone->getCameraControl()->setTiltPan(tilt, pan);
+}
+
 // /*********************/
 // /* PRIVATE FUCNTIONS */
 // /*********************/
@@ -139,10 +171,6 @@ void Bebop2CtrlIF::setFlightAltitude()
     wscDrone::waitSeconds(7);
 }
 
-void Bebop2CtrlIF::moveRelativeMetres(float x, float y)
-{
-    m_drone->getPilot()->moveRelativeMetres(x, y, 0);
-}
 
 #define USE_CTYPES
 
@@ -180,7 +208,7 @@ BOOST_PYTHON_MODULE(libwscDrone)
         .def("stopDrone",          &Bebop2CtrlIF::stopDrone)
         .def("getFrameBuffer",     &getFrameBuffer_wrap)
         .def("killDrone",          &Bebop2CtrlIF::killDrone)
-        // .def("getBatteryLevel", &Bebop2CtrlIF::getBatteryLevel)
+        .def("getBatteryLevel", &Bebop2CtrlIF::getBatteryLevel)
         // .def("setBatteryLevel", &Bebop2CtrlIF::setBatteryLevel)
     ;
 }
@@ -192,12 +220,20 @@ extern "C"
     Bebop2CtrlIF* CppPyIF(int callSign) { return new Bebop2CtrlIF(callSign); }
     void CppPyIF_takeoffDrone(Bebop2CtrlIF *Bebop2CtrlIF_IF) { Bebop2CtrlIF_IF->takeoffDrone(); }
     void CppPyIF_killDrone(Bebop2CtrlIF *Bebop2CtrlIF_IF) { Bebop2CtrlIF_IF->killDrone(); }
-    int CppPyIF_getBatteryLevel(Bebop2CtrlIF *PyIF) { return PyIF->getBatteryLevel(); }
-    char *CppPyIF_getBuff(Bebop2CtrlIF *PyIF) { return PyIF->getFrameBuffer(); }
     void CppPyIF_moveRelativeMetres(Bebop2CtrlIF *PyIF, float x, float y) { 
         PyIF->moveRelativeMetres(x, y); 
     }
     void CppPyIF_landDrone(Bebop2CtrlIF *PyIF) { PyIF->landDrone(); } 
+    // need to pass wscDrone::MoveDirection enum here
+    // void CppPyIF_moveDirection(Bebop2CtrlIF *PyIF, MoveDirection dir) { PyIF->moveDirection(dir); }
+    void CppPyIF_setHeading(Bebop2CtrlIF *PyIF, float heading) { PyIF->setHeading(heading); }
+    //Camera commands
+    void CppPyIF_capturePhoto(Bebop2CtrlIF *PyIF) { PyIF->capturePhoto(); }
+    void CppPyIF_setForward(Bebop2CtrlIF *PyIF) { PyIF->setForward(); }
+    void CppPyIF_setTiltPan(Bebop2CtrlIF *PyIF, float tilt, float pan) { PyIF->setTiltPan(tilt, pan); }
+    char *CppPyIF_getBuff(Bebop2CtrlIF *PyIF) { return PyIF->getFrameBuffer(); }
+    //Other commands
+    int CppPyIF_getBatteryLevel(Bebop2CtrlIF *PyIF) { return PyIF->getBatteryLevel(); }
 }
 
 #endif

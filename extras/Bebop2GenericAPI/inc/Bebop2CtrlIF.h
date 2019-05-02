@@ -44,14 +44,19 @@ public:
     /// Drone Movement Control commands
     void takeoffDrone();
     void moveRelativeMetres(float x, float y);
+    void moveDirection(wscDrone::MoveDirection dir);
+    void setHeading(float heading);
     void landDrone();
     void stopDrone();
     void killDrone();
-    unsigned getBatteryLevel();
+    //Camera specific functions
+    void capturePhoto();
+    void setForward();
+    void setTiltPan(float tilt, float pan);
 
     char * getFrameBuffer();
+    unsigned getBatteryLevel();
 
-    void testFoo();
 private:
     // Callsign    m_callsign;         ///< callsign of the drone
     std::string m_ipAddress;        ///< ipAddress of the drone under control
