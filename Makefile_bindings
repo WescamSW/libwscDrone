@@ -1,0 +1,113 @@
+
+###########################################################################
+## Useful functions for parsing strings like 'repo.git', 'mybranch!repo.git'
+# Returns the .git repo after optional separator [mybranch!]repo.git
+repo = $(lastword $(subst !, ,$1))
+# Returns the branch in 'mybranch!repo.git' if present, otherwise master
+branch = $(if $(word 2,$(subst !, ,$1)), $(firstword $(subst !, ,$1)),master)
+###########################################################################
+
+# Check for environment variables.
+ifndef SHELL
+SHELL = /usr/bin/sh
+endif
+
+ifndef ARCH
+ARCH = $(shell uname -m)
+endif
+
+ifndef ARSDK3
+ARSDK3=.
+endif
+
+OBJDIR = $(CURDIR)/obj/
+PREFIX = usr/local/include/
+DISTDIR = $(CURDIR)/dist/
+DEPDIR = $(CURDIR)/deps/
+OUTPUT_DIRS = $(CURDIR)/deps $(DISTDIR)
+# OUTPUT_DIRS = $(CURDIR)/deps $(DISTDIR)/$(PREFIX)
+SYS_INC = -I/usr/local/include
+PYBINDINGS_GENAPI_INCDIR = $(CURDIR)/inc/
+PYBINDINGS_GENAPI_SRCDIR = $(CURDIR)/src/
+
+ifndef DESTDIR
+export DESTDIR =$(DISTDIR)
+endif
+
+CC = $(TOOL_PREFIX)g++
+AR = $(TOOL_PREFIX)ar
+LD = $(TOOL_PREFIX)ld
+
+
+ifndef DIST_LIBDIR
+DIST_LIBDIR = $(DIST_DIR)/lib/
+endif
+
+TARGET_NAME = wscDrone_pyBind
+
+DYN_TARGET    = $(addprefix $(DIST_LIBDIR), $(DYN_TARGET_LIST))
+STATIC_TARGET = $(addprefix $(DIST_LIBDIR), $(STATIC_TARGET_LIST))
+
+FLAGS += -std=c++14 -Wall -pedantic -O2 -Wno-deprecated-declarations
+LOC_INC = -I$(DISTDIR)/$(PREFIX)/include -I$(ARSDK3)/include
+LOC_LIB = -L$(DISTDIR)/$(PREFIX)/lib -L$(ARSDK3)/lib
+
+SYS_INC = -I/usr/local/include
+SYS_LIB = -L/usr/local/lib
+
+# for Bebop2 SDK and wscDrone
+SYS_LIB += -lwscDrone -larsal -larcommands -lardiscovery -larcontroller -larmedia -larnetwork -larnetworkal -larstream -larstream2
+SYS_LIB += -lavcodec -lavformat -lswscale
+#SYS_LIB += -lwscDrone
+SYS_LIB += -lpthread -lrtsp -lsdp -lmux -lpomp -ljson-c -lulog -lfutils
+
+# for opencv
+SYS_INC += -I$(OPENCV)/include/opencv4/ -I$(OPENCV)/include/
+SYS_LIB += -L$(OPENCV)/lib
+LOCAL_INCDIR = $(CURDIR)/inc/
+SYS_LIBS_DIRS = -L=/usr/local/lib -L$(ARSDK3)/lib -L/usr/bin/python3.6
+#COMMON_FLAGS += -pedantic -Wall -Wextra -Wno-deprecated-declarations
+COMMON_FLAGS += -Wno-deprecated-declarations
+# shared library flags
+COMMON_FLAGS += -shared -fPIC
+CPPFLAGS     += -I$(LOCAL_INCDIR) -I$(API_INCDIR) $(SYS_INC_DIRS) -I$(EXTRAS_GENAPI_INCDIR)\
+                -I$(EXTRAS_PYBINDINGS_INCDIR)
+CXXFLAGS     += -std=c++14 $(COMMON_FLAGS)
+LDFLAGS      += -shared -fPIC
+
+DEBUGFLAGS     = -ggdb3 -O0 -D _DEBUG
+RELEASEFLAGS   = -O3 -D NDEBUG
+DEFAULTFLAGS   = -O3 -D NDEBUG
+#Extra Library Source Files For The Generic API IF
+CPP_PYBINDINGS_GENAPI_HEADER_LIST = Bebop2CtrlIF \
+                             Bebop2FrameIF
+CPP_PYBINDINGS_GENAPI_SRC_LIST = Bebop2CtrlIF \
+                             Bebop2FrameIF
+PYBINDING_GENAPI_HEADERS = $(addsuffix .h, $(addprefix $(PYBINDINGS_GENAPI_INCDIR), $(CPP_PYBINDINGS_GENAPI_HEADER_LIST)))
+SOURCES_PYBINDINGS_GENAPI_CPP = $(addsuffix .cpp, $(addprefix $(PYBINDINGS_GENAPI_SRCDIR), $(CPP_PYBINDINGS_GENAPI_SRC_LIST)))
+OBJECTS_PYBINDINGS_GENAPI_CPP = $(addsuffix .o, $(addprefix $(OBJDIR), $(CPP_PYBINDINGS_GENAPI_SRC_LIST)))
+all: directories pybinding_headers pybinding_sources
+
+directories:
+	mkdir -p $(OUTPUT_DIRS)
+
+pybinding_sources:
+	${CC} ${FLAGS} -o ${TARGET_NAME} ${SOURCES_PYBINDINGS_GENAPI_CPP} ${SYS_INC} ${LOC_INC} ${LOC_LIB} ${SYS_LIB}
+
+pybinding_headers:
+	cp -f $(PYBINDING_GENAPI_HEADERS) $(DIST_INCDIR)/$(PREFIX)
+
+$(DYN_TARGET): $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_PYBINDINGS_GENAPI_CPP) # $(OBJECTS_PYBINDINGS_PYBINDINGS_CPP)
+	$(CXX) $(LDFLAGS) -o $(DYN_TARGET) $(OBJECTS_C) $(OBJECTS_CPP) -Wl,-Bstatic $(SYS_STAT_LIBS) -Wl,-Bdynamic $(SYS_DYN_LIBS)
+	ln -f -s lib$(TARGET_NAME).so.$(LIB_VER) $(DIST_LIBDIR)/lib$(TARGET_NAME).so
+	ln -f -s lib$(TARGET_NAME).so.$(LIB_VER) $(DIST_LIBDIR)/lib$(TARGET_NAME).so.$(LIB_MAJOR_VER)
+	ln -f -s lib$(TARGET_NAME).so.$(LIB_VER) $(DIST_LIBDIR)/lib$(TARGET_NAME).so.$(LIB_MAJOR_VER).$(LIB_MINOR_VER)
+
+$(STATIC_TARGET): $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_CU) $(OBJECTS_PYBINDINGS_GENAPI_CPP) #$(OBJECTS_PYBINDINGS_PYBINDINGS_CPP)
+	$(AR) $(ARFLAGS) $(STATIC_TARGET) $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_PYBINDINGS_GENAPI_CPP) 
+
+$(OBJDIR)%.o: $(PYBINDINGS_GENAPI_SRCDIR)%.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DEFAULTFLAGS) -c -o $@ $<
+
+clean:
+	-rm -f $(OBJECTS_C) $(OBJECTS_CPP) $(OBJECTS_PYBINDINGS_GENAPI_CPP) 
