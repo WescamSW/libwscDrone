@@ -7,17 +7,17 @@
 #include <memory> // for shared_ptr
 #include <string>
 
-#include "Bebop2.h"
-#include "DroneDiscovery.h"
-#include "DroneController.h"
-#include "CameraControl.h"
-#include "Pilot.h"
-#include "Bebop2FrameIF.h"
-#include "Semaphore.h"
-#include "Utils.h"
-#include "VideoDecoder.h"
-#include "VideoDriver.h"
-#include "VideoFrame.h"
+#include "wscDrone/Bebop2.h"
+#include "wscDrone/DroneDiscovery.h"
+#include "wscDrone/DroneController.h"
+#include "wscDrone/CameraControl.h"
+#include "wscDrone/Pilot.h"
+#include "wscDrone/Bebop2FrameIF.h"
+#include "wscDrone/Semaphore.h"
+#include "wscDrone/Utils.h"
+#include "wscDrone/VideoDecoder.h"
+#include "wscDrone/VideoDriver.h"
+#include "wscDrone/VideoFrame.h"
 // #include "wscDrone.h"
 // #include "../inc/gilHandler.hpp"
 

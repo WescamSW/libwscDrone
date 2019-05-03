@@ -11,7 +11,7 @@
 #include <memory>
 // #include <thread>
 // #include <opencv2/core.hpp>
-#include "VideoFrame.h"
+#include "wscDrone/VideoFrame.h"
 
 class Bebop2FrameIF : public VideoFrame {
 public:
