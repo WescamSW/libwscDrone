@@ -88,9 +88,6 @@ SYS_DYN_LIBS_LIST += arsal arcommands ardiscovery arcontroller armedia arnetwork
 SYS_DYN_LIBS_LIST += pthread rtsp sdp mux pomp json-c ulog futils
 #for FFMPEG
 SYS_DYN_LIBS_LIST += avformat avcodec avutil swscale
-#for Boost
-SYS_DYN_LIBS_LIST += boost_python3
-SYS_STAT_LIBS_LIST =
 
 API_HEADER_LIST = Bebop2 \
                   DroneDiscovery \
