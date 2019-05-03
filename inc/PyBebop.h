@@ -20,8 +20,19 @@
 #include "VideoFrame.h"
 // #include "wscDrone.h"
 // #include "../inc/gilHandler.hpp"
-
-using VideoFrameGeneric = PyFrame; //IS THIS OK STEVE??
+//one of these two is needed
+#include "wscDrone/Bebop2.h"
+#include "wscDrone/DroneDiscovery.h"
+#include "wscDrone/DroneController.h"
+#include "wscDrone/CameraControl.h"
+#include "wscDrone/Pilot.h"
+#include "wscDrone/Bebop2FrameIF.h"
+#include "wscDrone/Semaphore.h"
+#include "wscDrone/Utils.h"
+#include "wscDrone/VideoDecoder.h"
+#include "wscDrone/VideoDriver.h"
+#include "wscDrone/VideoFrame.h"
+using VideoFrameGeneric = PyFrame; 
 
 #ifdef GIL_HANDLER
 class PyBebop : public gil_guard 
@@ -39,19 +50,21 @@ public:
     /// Default destructor
     ~PyBebop() {}
 
-    /// Thread Mgmt by GIL
-    // gil_guard gil(gil_guard::no_acquire_t);
-    /// Drone Movement Control commands
     void takeoffDrone();
     void moveRelativeMetres(float x, float y);
+    void moveDirection(wscDrone::MoveDirection dir);
+    void setHeading(float heading);
     void landDrone();
     void stopDrone();
     void killDrone();
-    unsigned getBatteryLevel();
+    //Camera specific functions
+    void capturePhoto();
+    void setForward();
+    void setTiltPan(float tilt, float pan);
 
     char * getFrameBuffer();
+    unsigned getBatteryLevel();
 
-    void testFoo();
 private:
     // Callsign    m_callsign;         ///< callsign of the drone
     std::string m_ipAddress;        ///< ipAddress of the drone under control
