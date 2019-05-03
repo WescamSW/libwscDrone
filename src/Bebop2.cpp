@@ -11,9 +11,9 @@
 using namespace std;
 
 // Set the default flight altitudes for the drones
-constexpr float ALPHA_FLIGHT_ALTITUDE     = 1.5f;
-constexpr float BRAVO_FLIGHT_ALTITUDE     = 3.0f;
-constexpr float CHARLIE_FLIGHT_ALTITUDE   = 4.0f;
+constexpr float CHARLIE_FLIGHT_ALTITUDE = 1.5f;
+constexpr float BRAVO_FLIGHT_ALTITUDE   = 3.0f;
+constexpr float ALPHA_FLIGHT_ALTITUDE   = 4.0f;
 constexpr float LONE_WOLF_FLIGHT_ALTITUDE = 1.0f;
 
 namespace wscDrone {
